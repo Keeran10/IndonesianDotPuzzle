@@ -19,17 +19,32 @@ class GraphTest(unittest.TestCase):
         graph.print()
         self.assertTrue(graph is not None)
 
+        to_be_touched = graph.dots[5].value
+        top = graph.dots[1].value
+        left = graph.dots[4].value
+        right = graph.dots[6].value
+        bottom = graph.dots[9].value
+
+        # verify initial values of target dot and its adjacents
+        self.assertTrue(to_be_touched == 0)
+        self.assertTrue(top == 1)
+        self.assertTrue(left == 1)
+        self.assertTrue(right == 0)
+        self.assertTrue(bottom == 1)
+
+        # Touch the dot at position 5
         graph.dots[5].touch()
+
         print("-------------------")
         graph.print()
 
-        # Touch the dot at position 5
         touched = graph.dots[5].value
         top = graph.dots[1].value
         left = graph.dots[4].value
         right = graph.dots[6].value
         bottom = graph.dots[9].value
 
+        # verify flipped values of target dot and its adjacents
         self.assertTrue(touched == 1)
         self.assertTrue(top == 0)
         self.assertTrue(left == 0)
