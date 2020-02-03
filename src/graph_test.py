@@ -35,7 +35,6 @@ class GraphTest(unittest.TestCase):
         # Touch the dot at position 5
         graph.dots[5].touch()
 
-        print("-------------------")
         graph.print()
 
         touched = graph.dots[5].value
