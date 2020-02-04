@@ -14,58 +14,69 @@ def createGraph(file_path):
             return Graph(n, max_d, max_l, values)
 
 
-def depthFirstSearch(graph, o, c, depth):
+def depthFirstSearch(o, c, max_d, depth):
 
     success = False
 
     while len(o) != 0:
 
-        printStack(o, "open stack")
-        printStack(c, "closed stack")
+        if depth <= max_d:
 
-        if depth <= graph.max_d:
             root = o.pop()
 
-            traversed = False
-            for dot in c:
-                if dot.position == root.position:
-                    traversed = True
-            if traversed:
+            root.print()
+
+            if isTraversed(root, c):
                 continue
 
-            graph.dots.get(root.position).touch()
+            c.append(root)
 
-            if graph.isGoalState():
-                printStack(o, "open stack")
-                printStack(c, "closed stack")
+            if root.isGoalState():
                 success = True
                 break
 
-            else:
-                c.append(root)
-                o.extend(graph.dots.get(root.position).adjacents)
-                # depth += 1
-                continue
+            black_dots = root.getBlackDots()
+            black_dots.reverse()
+
+            for black_dot in black_dots:
+                child = root
+                child.dots.get(black_dot).touch()
+                o.append(child)
+
+            break
+            # depth += 1
+
         else:
             print("Maximum depth reached ... \n")
             break
 
+    printStack(o, "open stack")
+    printStack(c, "closed stack")
+
     if not success:
-        print("No solution found.")
+        print("\nNo solution found.")
 
     return success
 
 
+def isTraversed(root, c):
+    traversed = False
+    for dots in c:
+        if root.dots == dots:
+            traversed = True
+    return traversed
+
+
 def printStack(stack, stack_type):
     print("\n", stack_type, ": ", end=" ")
-    for dot in stack:
-        print(dot.position, end=" ")
+    for graph in stack:
+        print(graph.print(), end=" ")
 
 
 graph = createGraph(os.path.join(sys.path[0], "test_sample.txt"))
 o = []  # open stack tracks position
 c = []  # closed stack tracks position
-o.append(graph.dots.get("A1"))
+o.append(graph)
 
-print(depthFirstSearch(graph, o, c, 1))
+print(depthFirstSearch(o, c, graph.max_d, 1))
 

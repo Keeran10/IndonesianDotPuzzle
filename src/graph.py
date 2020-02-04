@@ -76,6 +76,14 @@ class Graph:
 
         return graph_dictionary
 
+    def getBlackDots(self):
+        black_dots = []
+        for key in self.dots:
+            if self.dots.get(key).value == 1:
+                black_dots.append(key)
+        print(black_dots)
+        return black_dots
+
     def isGoalState(self):
 
         size = self.n * self.n
