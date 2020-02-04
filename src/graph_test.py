@@ -16,14 +16,16 @@ class GraphTest(unittest.TestCase):
                 graph = Graph(n, max_d, max_l, values)
 
         print()
+        print(graph.dots)
+        print()
         graph.print()
         self.assertTrue(graph is not None)
 
-        to_be_touched = graph.dots[5].value
-        top = graph.dots[1].value
-        left = graph.dots[4].value
-        right = graph.dots[6].value
-        bottom = graph.dots[9].value
+        to_be_touched = graph.dots.get("B2").value
+        top = graph.dots.get("A2").value
+        left = graph.dots.get("B1").value
+        right = graph.dots.get("B3").value
+        bottom = graph.dots.get("C2").value
 
         # verify initial values of target dot and its adjacents
         self.assertTrue(to_be_touched == 0)
@@ -33,15 +35,15 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(bottom == 1)
 
         # Touch the dot at position 5
-        graph.dots[5].touch()
+        graph.dots.get("B2").touch()
 
         graph.print()
 
-        touched = graph.dots[5].value
-        top = graph.dots[1].value
-        left = graph.dots[4].value
-        right = graph.dots[6].value
-        bottom = graph.dots[9].value
+        touched = graph.dots.get("B2").value
+        top = graph.dots.get("A2").value
+        left = graph.dots.get("B1").value
+        right = graph.dots.get("B3").value
+        bottom = graph.dots.get("C2").value
 
         # verify flipped values of target dot and its adjacents
         self.assertTrue(touched == 1)

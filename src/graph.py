@@ -51,11 +51,11 @@ class Graph:
             if row == 65:
                 # first row doesn't have top adjacent
 
-                if column % self.n != 1:
+                if column != 1:
                     # first row, first column doesn't have top or left adjacents
                     dot.add_adjacent(dots[adjacent_left])
 
-            elif column % self.n == 1:
+            elif column == 1:
                 # first columns don't have left adjacent
                 dot.add_adjacent(dots[adjacent_top])
 
@@ -65,10 +65,30 @@ class Graph:
 
             column += 1
 
-            if column % self.n == 0:
+            if column > self.n:
+                column = 1
                 row += 1
 
-        return dots
+        graph_dictionary = {}
+
+        for dot in dots:
+            graph_dictionary[dot.position] = dot
+
+        return graph_dictionary
+
+    def isGoalState(self):
+
+        size = self.n * self.n
+        white = 0
+
+        for dot in self.dots:
+            if dot.value == 0:
+                white += 1
+
+        if white == size:
+            return True
+        else:
+            return False
 
     def print(self):
 
@@ -84,8 +104,8 @@ class Graph:
             print(header_counter, end=" ")
             header_counter += 1
 
-        for dot in self.dots:
-
+        for key in self.dots:
+            dot = self.dots.get(key)
             if format_counter % self.n == 0:
                 print()
                 print(dot.position[0], end=" ")
