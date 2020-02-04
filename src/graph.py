@@ -81,8 +81,8 @@ class Graph:
         size = self.n * self.n
         white = 0
 
-        for dot in self.dots:
-            if dot.value == 0:
+        for key in self.dots:
+            if self.dots.get(key).value == 0:
                 white += 1
 
         if white == size:
