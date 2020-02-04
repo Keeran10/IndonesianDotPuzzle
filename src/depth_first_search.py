@@ -1,5 +1,6 @@
 import os, sys
 from graph import Graph
+import copy
 
 
 def createGraph(file_path):
@@ -24,12 +25,17 @@ def depthFirstSearch(o, c, max_d, depth):
 
             root = o.pop()
 
-            root.print()
-
             if isTraversed(root, c):
+                print(
+                    "\n" + root.touched + " touched state has already been traversed."
+                )
                 continue
 
             c.append(root)
+
+            printStack(o, "opened")
+            printStack(c, "closed")
+            root.print()
 
             if root.isGoalState():
                 success = True
@@ -39,19 +45,15 @@ def depthFirstSearch(o, c, max_d, depth):
             black_dots.reverse()
 
             for black_dot in black_dots:
-                child = root
-                child.dots.get(black_dot).touch()
+                child = copy.deepcopy(root)
+                child.touch(black_dot)
                 o.append(child)
 
-            break
-            # depth += 1
+            depth += 1
 
         else:
-            print("Maximum depth reached ... \n")
+            print("\nMaximum depth reached ... \n")
             break
-
-    printStack(o, "open stack")
-    printStack(c, "closed stack")
 
     if not success:
         print("\nNo solution found.")
@@ -60,17 +62,18 @@ def depthFirstSearch(o, c, max_d, depth):
 
 
 def isTraversed(root, c):
-    traversed = False
-    for dots in c:
-        if root.dots == dots:
-            traversed = True
-    return traversed
+    for graph in c:
+        if root.readableDots == graph.readableDots:
+            return True
+    return False
 
 
 def printStack(stack, stack_type):
-    print("\n", stack_type, ": ", end=" ")
+    print("\n" + stack_type + ":", end=" ")
     for graph in stack:
-        print(graph.print(), end=" ")
+        if graph.touched == None:
+            continue
+        print(graph.touched, end=" ")
 
 
 graph = createGraph(os.path.join(sys.path[0], "test_sample.txt"))
@@ -79,4 +82,3 @@ c = []  # closed stack tracks position
 o.append(graph)
 
 print(depthFirstSearch(o, c, graph.max_d, 1))
-

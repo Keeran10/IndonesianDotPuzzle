@@ -30,6 +30,8 @@ class Graph:
         self.max_d = int(max_d)  # the maximum depth search for DFS
         self.max_l = int(max_l)  # the maximum search path length for BFS and A*
         self.dots = self.processDotValues(values)  # list of all ordered dots
+        self.touched = None
+        self.readableDots = values
 
     def processDotValues(self, values):
         # transform dots values into dot objects
@@ -81,8 +83,17 @@ class Graph:
         for key in self.dots:
             if self.dots.get(key).value == 1:
                 black_dots.append(key)
-        print(black_dots)
         return black_dots
+
+    def touch(self, position):
+        self.dots.get(position).touch()
+        self.touched = position
+        self.setReadableDots()
+
+    def setReadableDots(self):
+        self.readableDots = ""
+        for key in self.dots:
+            self.readableDots += str(self.dots.get(key).value)
 
     def isGoalState(self):
 
@@ -103,7 +114,7 @@ class Graph:
         format_counter = 0
         header_counter = 1
 
-        print()
+        print("\n")
 
         # top-left corner left blank
         print(" ", end=" ")
