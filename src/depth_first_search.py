@@ -1,8 +1,6 @@
 import os, sys
 from graph import Graph, Pair
-import copy, functools
-import multiprocessing
-import time
+import copy, functools, time
 
 
 def createGraphs(file_path):
@@ -21,117 +19,129 @@ def createGraphs(file_path):
 def depthFirstSearch(o, c, max_d, puzzle_count):
 
     success = False
-    backtrack_index = 0
-    backtracked_node_count = 0
     depth = 1
     solution = []
     search = []
+    start = time.perf_counter()
+    ALLOCATED_TIME = 5  # how long while loop should last in seconds
+    duration = 0
 
     while len(o) != 0:
 
+        duration = time.perf_counter() - start
+        if duration > ALLOCATED_TIME:
+            break
+
         printStack(o, "opened")
 
-        if depth <= max_d:
+        root = o.pop()
 
-            root = o.pop()
-
-            if isTraversed(root, c):
-                print(
-                    "\n" + root.touched + " touched state has already been traversed.\n"
-                )
-                continue
-
-            print("\ntouch", root.touched, "(depth level: " + str(depth) + ").")
-
-            solution.append(Pair(root.touched, root.readableDots))
-
-            c.append(root)
-
-            printStack(c, "closed")
-            root.print()
-
-            if root.isGoalState():
-                success = True
-                break
-
-            black_dots = root.getBlackDots()
-            black_dots.reverse()
-            children = []
-
-            for black_dot in black_dots:
-                child = copy.deepcopy(root)
-                child.touch(black_dot)
-                children.append(child)
-
-            # store backtrack index
-            if depth == 1:
-                backtrack_index = len(children) - 1 - backtracked_node_count
-                backtracked_node_count += 1
-                search.append(root.readableDots)
-
-            # sort children by their white dots at earlier positions
-            sorted(children, key=functools.cmp_to_key(compareChild))
-            o.extend(children)
-            depth += 1
-
-        else:
-            print(
-                "\nMaximum depth reached (backtracking nodes: "
-                + str(backtracked_node_count)
-                + ")... \n"
-            )
-            # add to search path then change node to explore
-            o = o[:backtrack_index]
-            depth = 1
+        if isTraversed(root, c):
+            print("\nNode " + root.readableDots + " has already been traversed.\n")
             continue
 
-    if not success:
+        print("\ntouch", root.touched)
+
+        solution.append(Pair(root.touched, root.readableDots))
+        search.append(root.readableDots)
+        c.append(root)
+
         printStack(c, "closed")
-        print("\n\nNo solution found.")
-        generateSolutionFile([], "no solution", puzzle_count)
-        generateSearchFile(search, puzzle_count)
-        return False
+        root.print()
 
-    generateSolutionFile(solution, " ", puzzle_count)
-    generateSearchFile(search, puzzle_count)
-    print("Goal state achieved.")
-    return True
+        if root.isGoalState():
+            success = True
+            break
+
+        if depth > max_d:
+            print(
+                "\nMaximum depth reached. Children of node "
+                + root.readableDots
+                + " will not be explored.\n"
+            )
+            depth -= 1
+            continue
+
+        black_dots = root.getBlackDots()
+        black_dots.reverse()
+        children = []
+
+        for black_dot in black_dots:
+            child = copy.deepcopy(root)
+            child.touch(black_dot)
+            children.append(child)
+
+        sorted(children, key=functools.cmp_to_key(compareChildren))
+        print(
+            "Exploring children of "
+            + root.readableDots
+            + " (depth level: "
+            + str(depth)
+            + ").\n"
+        )
+        o.extend(children)
+        depth += 1
+
+    goal_message = "Goal state achieved."
+    error_message = " "
+
+    if duration > ALLOCATED_TIME:
+        print("\nDFS ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
+    else:
+        print(f"\nDFS completed in {duration:0.4f} seconds.\n")
+
+    if not success:
+        goal_message = "Goal state not found.\n"
+        error_message = "No solution found."
+
+    print(goal_message)
+
+    output = []
+    output.append(search)
+    output.append(solution)
+    output.append(error_message)
+
+    return output
 
 
+# Returns true if the state of the current node had already been traversed.
 def isTraversed(root, c):
     for graph in c:
+        # readableDots contains a stringified representation of the state
         if root.readableDots == graph.readableDots:
             return True
     return False
 
 
-def compareChild(graph1, graph2):
+# Returns the positive if child1 has white dots at earlier positions than child2
+def compareChildren(child1, child2):
 
-    graph1_white_dots = []
-    graph2_white_dots = []
+    child1_white_dots = []
+    child2_white_dots = []
 
-    for key in graph1.dots:
-        if graph1.dots.get(key).value == 0:
-            graph1_white_dots.append(graph1.dots.get(key).index)
+    for key in child1.dots:
+        if child1.dots.get(key).value == 0:
+            child1_white_dots.append(child1.dots.get(key).index)
 
-    for key in graph2.dots:
-        if graph2.dots.get(key).value == 0:
-            graph2_white_dots.append(graph2.dots.get(key).index)
+    for key in child2.dots:
+        if child2.dots.get(key).value == 0:
+            child2_white_dots.append(child2.dots.get(key).index)
 
     size = (
-        len(graph2_white_dots)
-        if len(graph1_white_dots) >= len(graph2_white_dots)
-        else len(graph1_white_dots)
+        len(child2_white_dots)
+        if len(child1_white_dots) >= len(child2_white_dots)
+        else len(child1_white_dots)
     )
 
     for x in range(size):
-        if graph1_white_dots[x] == graph2_white_dots[x]:
+        if child1_white_dots[x] == child2_white_dots[x]:
             continue
         else:
-            return graph1_white_dots[x] - graph2_white_dots[x]
+            return child1_white_dots[x] - child2_white_dots[x]
     return 0
 
 
+# prints stack with positions to be touched
 def printStack(stack, stack_type):
     print(stack_type + ":", end=" ")
     for graph in stack:
@@ -144,7 +154,7 @@ def generateSolutionFile(solution, error, puzzle_count):
 
     with open(str(puzzle_count) + "_dfs_solution.txt", "a") as f:
 
-        if error == "no solution":
+        if error == "No solution found.":
             f.write(error + "\n")
             return False
 
@@ -164,26 +174,14 @@ def main():
     graphs = createGraphs(os.path.join(sys.path[0], "test_sample.txt"))
     puzzle_count = 0
     for graph in graphs:
-        o = []  # open stack tracks position
-        c = []  # closed stack tracks position
+        o = []  # open stack
+        c = []  # closed stack
         o.append(graph)
-        depthFirstSearch(o, c, graph.max_d, puzzle_count)
+        output = depthFirstSearch(o, c, graph.max_d, puzzle_count)
+        generateSearchFile(output[0], puzzle_count)
+        generateSolutionFile(output[1], output[2], puzzle_count)
         puzzle_count += 1
 
 
 if __name__ == "__main__":
-    # Code to kill depth search function taken from stackoverflow at:
-    # https://stackoverflow.com/questions/14920384/stop-code-after-time-period
-    # Start main as a process
-    p = multiprocessing.Process(target=main, name="main")
-    p.start()
-
-    # Wait x seconds for main
-    time.sleep(10)
-
-    # If thread is active
-    if p.is_alive():
-        print("\n\nDFS is running for more than 10 seconds. Terminating...")
-        # Terminate main
-        p.terminate()
-        p.join()
+    main()
