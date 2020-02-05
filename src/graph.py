@@ -31,7 +31,7 @@ class Graph:
         self.max_d = int(max_d)  # the maximum depth search for DFS
         self.max_l = int(max_l)  # the maximum search path length for BFS and A*
         self.dots = self.processDotValues(values)  # list of all ordered dots
-        self.touched = None
+        self.touched = "0"
         self.readableDots = values
 
     def processDotValues(self, values):
@@ -140,3 +140,8 @@ class Graph:
 
         print("\n")
 
+
+class Pair:
+    def __init__(self, position, state):
+        self.position = position
+        self.state = state

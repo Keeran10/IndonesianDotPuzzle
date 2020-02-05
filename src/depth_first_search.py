@@ -1,12 +1,15 @@
 import os, sys
-from graph import Graph
+from graph import Graph, Pair
 import copy, functools
+import multiprocessing
+import time
 
 
 def createGraph(file_path):
     with open(file_path, "r") as f:
-        line = f.readline()
-        data = line.split()
+        x = 0  # line to read
+        lines = f.readlines()
+        data = lines[x].split()
         n = data[0]
         max_d = data[1]
         max_l = data[2]
@@ -18,7 +21,11 @@ def createGraph(file_path):
 def depthFirstSearch(o, c, max_d):
 
     success = False
+    backtrack_index = 0
+    backtracked_node_count = 0
     depth = 1
+    solution = []
+    search = []
 
     while len(o) != 0:
 
@@ -27,11 +34,16 @@ def depthFirstSearch(o, c, max_d):
         if depth <= max_d:
 
             root = o.pop()
-            print("\ntouch", root.touched)
 
             if isTraversed(root, c):
-                print(root.touched + " touched state has already been traversed.\n")
+                print(
+                    "\n" + root.touched + " touched state has already been traversed.\n"
+                )
                 continue
+
+            print("\ntouch", root.touched, "(depth level: " + str(depth) + ").")
+
+            solution.append(Pair(root.touched, root.readableDots))
 
             c.append(root)
 
@@ -51,23 +63,30 @@ def depthFirstSearch(o, c, max_d):
                 child.touch(black_dot)
                 children.append(child)
 
-            # print("\n", children)
+            # store backtrack index
+            if depth == 1:
+                backtrack_index = len(children) - 1 - backtracked_node_count
+                backtracked_node_count += 1
+
             # sort children by their white dots at earlier positions
             sorted(children, key=functools.cmp_to_key(compareChild))
-            # print("\n", children)
-            # children.reverse()
             o.extend(children)
-
             depth += 1
 
         else:
             print("\nMaximum depth reached ... \n")
-            break
+            # add to search path then change node to explore
+            search.append(o[0].readableDots)
+            o[:backtrack_index]
+            depth = 1
+            printStack(o, "opened")
+            continue
 
     if not success:
         print("\nNo solution found.")
+        generateSolutionFile([], "no solution")
 
-    return success
+    generateSolutionFile(solution, " ")
 
 
 def isTraversed(root, c):
@@ -112,11 +131,45 @@ def printStack(stack, stack_type):
         print(graph.touched, end=" ")
 
 
-graph = createGraph(os.path.join(sys.path[0], "test_sample.txt"))
+def generateSolutionFile(solution, error):
 
-if graph is not None:
-    o = []  # open stack tracks position
-    c = []  # closed stack tracks position
-    o.append(graph)
+    with open("27658095_dfs_solution.txt", "a") as f:
 
-    print(depthFirstSearch(o, c, graph.max_d))
+        if error == "no solution":
+            f.write(error + "\n")
+            return
+
+        for line in solution:
+            f.write(line.position + "\t" + line.state + "\n")
+
+
+def generateSearchFile(search, error):
+
+    with open("27658095_dfs_search.txt", "a") as f:
+
+        for line in search:
+            f.write("0" + "\t" + "0" + "\t" + "0" + "\t" + line + "\n")
+
+
+def main():
+    graph = createGraph(os.path.join(sys.path[0], "test_sample.txt"))
+    if graph is not None:
+        o = []  # open stack tracks position
+        c = []  # closed stack tracks position
+        o.append(graph)
+        depthFirstSearch(o, c, graph.max_d)
+
+
+if __name__ == "__main__":
+    # Start foo as a process
+    p = multiprocessing.Process(target=main, name="main")
+    p.start()
+
+    # Wait 10 seconds for foo
+    time.sleep(10)
+
+    # Terminate foo
+    p.terminate()
+
+    # Cleanup
+    p.join()
