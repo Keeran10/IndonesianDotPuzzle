@@ -19,7 +19,6 @@ def createGraphs(file_path):
 def depthFirstSearch(o, c, max_d, puzzle_count):
 
     success = False
-    depth = 1
     solution = []
     search = []
     start = time.perf_counter()
@@ -28,6 +27,7 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
 
     while len(o) != 0:
 
+        # Time counter set to avoid extensive search
         duration = time.perf_counter() - start
         if duration > ALLOCATED_TIME:
             break
@@ -49,19 +49,21 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
         printStack(c, "closed")
         root.print()
 
+        # Exit DFS if root is goal state
         if root.isGoalState():
             success = True
             break
 
-        if depth == max_d:
+        # Backtrack by not expanding root's children
+        if root.depth == max_d:
             print(
                 "\nMaximum depth reached. Children of node "
                 + root.readableDots
                 + " will not be explored.\n"
             )
-            depth -= 1
             continue
 
+        # Add root's children to stack
         black_dots = root.getBlackDots()
         black_dots.reverse()
         children = []
@@ -69,6 +71,7 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
         for black_dot in black_dots:
             child = copy.deepcopy(root)
             child.touch(black_dot)
+            child.depth = root.depth + 1
             children.append(child)
 
         sorted(children, key=functools.cmp_to_key(compareChildren))
@@ -76,11 +79,10 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
             "Exploring children of "
             + root.readableDots
             + " (depth level: "
-            + str(depth)
+            + str(root.depth)
             + ").\n"
         )
         o.extend(children)
-        depth += 1
 
     goal_message = "Goal state achieved."
     error_message = " "

@@ -32,6 +32,7 @@ class Graph:
         self.max_l = int(max_l)  # the maximum search path length for BFS and A*
         self.dots = self.processDotValues(values)  # list of all ordered dots
         self.touched = "0"
+        self.depth = 1
         self.readableDots = values
 
     def processDotValues(self, values):
