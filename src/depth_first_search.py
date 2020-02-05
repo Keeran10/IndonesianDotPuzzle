@@ -23,7 +23,7 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
     solution = []
     search = []
     start = time.perf_counter()
-    ALLOCATED_TIME = 5  # how long while loop should last in seconds
+    ALLOCATED_TIME = 3  # how long while loop should last in seconds
     duration = 0
 
     while len(o) != 0:
@@ -53,7 +53,7 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
             success = True
             break
 
-        if depth > max_d:
+        if depth == max_d:
             print(
                 "\nMaximum depth reached. Children of node "
                 + root.readableDots
