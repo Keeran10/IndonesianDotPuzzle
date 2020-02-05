@@ -173,7 +173,10 @@ def generateSearchFile(search, puzzle_count):
 
 
 def main():
+    file_path = input("File Path: ")
+    # Toggle between the following two lines for (1) easy access to test case or (2) perform dfs on demo file
     graphs = createGraphs(os.path.join(sys.path[0], "test_sample.txt"))
+    # graphs = createGraphs(file_path)
     puzzle_count = 0
     for graph in graphs:
         o = []  # open stack
