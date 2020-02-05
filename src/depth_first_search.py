@@ -5,20 +5,20 @@ import multiprocessing
 import time
 
 
-def createGraph(file_path):
+def createGraphs(file_path):
+    graphs = []
     with open(file_path, "r") as f:
-        x = 0  # line to read
-        lines = f.readlines()
-        data = lines[x].split()
-        n = data[0]
-        max_d = data[1]
-        max_l = data[2]
-        values = data[3]
-        return Graph(n, max_d, max_l, values)
-    return None
+        for line in f:
+            data = line.split()
+            n = data[0]
+            max_d = data[1]
+            max_l = data[2]
+            values = data[3]
+            graphs.append(Graph(n, max_d, max_l, values))
+    return graphs
 
 
-def depthFirstSearch(o, c, max_d):
+def depthFirstSearch(o, c, max_d, puzzle_count):
 
     success = False
     backtrack_index = 0
@@ -67,6 +67,7 @@ def depthFirstSearch(o, c, max_d):
             if depth == 1:
                 backtrack_index = len(children) - 1 - backtracked_node_count
                 backtracked_node_count += 1
+                search.append(root.readableDots)
 
             # sort children by their white dots at earlier positions
             sorted(children, key=functools.cmp_to_key(compareChild))
@@ -80,20 +81,21 @@ def depthFirstSearch(o, c, max_d):
                 + ")... \n"
             )
             # add to search path then change node to explore
-            search.append(o[0].readableDots)
             o = o[:backtrack_index]
             depth = 1
-            printStack(o, "opened")
-            print()
             continue
 
     if not success:
-        print("\nNo solution found.")
-        generateSolutionFile([], "no solution")
-        generateSearchFile(search)
+        printStack(c, "closed")
+        print("\n\nNo solution found.")
+        generateSolutionFile([], "no solution", puzzle_count)
+        generateSearchFile(search, puzzle_count)
+        return False
 
-    generateSolutionFile(solution, " ")
-    generateSearchFile(search)
+    generateSolutionFile(solution, " ", puzzle_count)
+    generateSearchFile(search, puzzle_count)
+    print("Goal state achieved.")
+    return True
 
 
 def isTraversed(root, c):
@@ -138,48 +140,50 @@ def printStack(stack, stack_type):
         print(graph.touched, end=" ")
 
 
-def generateSolutionFile(solution, error):
+def generateSolutionFile(solution, error, puzzle_count):
 
-    with open("27658095_dfs_solution.txt", "a") as f:
+    with open(str(puzzle_count) + "_dfs_solution.txt", "a") as f:
 
         if error == "no solution":
             f.write(error + "\n")
-            return
+            return False
 
         for line in solution:
             f.write(line.position + "\t" + line.state + "\n")
 
 
-def generateSearchFile(search):
+def generateSearchFile(search, puzzle_count):
 
-    with open("27658095_dfs_search.txt", "a") as f:
+    with open(str(puzzle_count) + "_dfs_search.txt", "a") as f:
 
         for line in search:
             f.write("0" + "\t" + "0" + "\t" + "0" + "\t" + line + "\n")
 
 
 def main():
-    graph = createGraph(os.path.join(sys.path[0], "test_sample.txt"))
-    if graph is not None:
+    graphs = createGraphs(os.path.join(sys.path[0], "test_sample.txt"))
+    puzzle_count = 0
+    for graph in graphs:
         o = []  # open stack tracks position
         c = []  # closed stack tracks position
         o.append(graph)
-        depthFirstSearch(o, c, graph.max_d)
+        depthFirstSearch(o, c, graph.max_d, puzzle_count)
+        puzzle_count += 1
 
 
 if __name__ == "__main__":
     # Code to kill depth search function taken from stackoverflow at:
     # https://stackoverflow.com/questions/14920384/stop-code-after-time-period
-    # Start foo as a process
+    # Start main as a process
     p = multiprocessing.Process(target=main, name="main")
     p.start()
 
-    # Wait 10 seconds for foo
-    time.sleep(3)
+    # Wait x seconds for main
+    time.sleep(10)
 
     # If thread is active
     if p.is_alive():
-        print("\n\nMain is running... let's kill it...")
-        # Terminate foo
+        print("\n\nDFS is running for more than 10 seconds. Terminating...")
+        # Terminate main
         p.terminate()
         p.join()
