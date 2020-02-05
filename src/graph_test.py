@@ -6,14 +6,15 @@ from graph import Graph
 class GraphTest(unittest.TestCase):
     def test_graph_functionality(self):
         with open(os.path.join(sys.path[0], "test_sample.txt"), "r") as f:
-            for line in f:
-                data = line.split()
-                n = data[0]
-                max_d = data[1]
-                max_l = data[2]
-                values = data[3]
 
-                graph = Graph(n, max_d, max_l, values)
+            line = f.readline()
+            data = line.split()
+            n = data[0]
+            max_d = data[1]
+            max_l = data[2]
+            values = data[3]
+
+            graph = Graph(n, max_d, max_l, values)
 
         print()
         print(graph.dots)

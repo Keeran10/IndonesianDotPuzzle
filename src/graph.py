@@ -1,7 +1,8 @@
 class Dot:
-    def __init__(self, value, position):
+    def __init__(self, value, position, index):
         self.value = int(value)
         self.position = position
+        self.index = index
         self.adjacents = list()
 
     def add_adjacent(self, adjacent):
@@ -39,11 +40,12 @@ class Graph:
         dots = list()
         row = 65
         column = 1
+        count = 0
 
         for value in values:
 
             position = chr(row) + str(column)
-            dot = Dot(value, position)
+            dot = Dot(value, position, count)
             dots.append(dot)
 
             index = len(dots) - 1
@@ -66,6 +68,7 @@ class Graph:
                 dot.add_adjacent(dots[adjacent_left])
 
             column += 1
+            count += 1
 
             if column > self.n:
                 column = 1
@@ -135,5 +138,5 @@ class Graph:
             print(dot.value, end=" ")
             format_counter += 1
 
-        print()
+        print("\n")
 
