@@ -74,19 +74,26 @@ def depthFirstSearch(o, c, max_d):
             depth += 1
 
         else:
-            print("\nMaximum depth reached ... \n")
+            print(
+                "\nMaximum depth reached (backtracking nodes: "
+                + str(backtracked_node_count)
+                + ")... \n"
+            )
             # add to search path then change node to explore
             search.append(o[0].readableDots)
-            o[:backtrack_index]
+            o = o[:backtrack_index]
             depth = 1
             printStack(o, "opened")
+            print()
             continue
 
     if not success:
         print("\nNo solution found.")
         generateSolutionFile([], "no solution")
+        generateSearchFile(search)
 
     generateSolutionFile(solution, " ")
+    generateSearchFile(search)
 
 
 def isTraversed(root, c):
@@ -143,7 +150,7 @@ def generateSolutionFile(solution, error):
             f.write(line.position + "\t" + line.state + "\n")
 
 
-def generateSearchFile(search, error):
+def generateSearchFile(search):
 
     with open("27658095_dfs_search.txt", "a") as f:
 
@@ -161,15 +168,18 @@ def main():
 
 
 if __name__ == "__main__":
+    # Code to kill depth search function taken from stackoverflow at:
+    # https://stackoverflow.com/questions/14920384/stop-code-after-time-period
     # Start foo as a process
     p = multiprocessing.Process(target=main, name="main")
     p.start()
 
     # Wait 10 seconds for foo
-    time.sleep(10)
+    time.sleep(3)
 
-    # Terminate foo
-    p.terminate()
-
-    # Cleanup
-    p.join()
+    # If thread is active
+    if p.is_alive():
+        print("\n\nMain is running... let's kill it...")
+        # Terminate foo
+        p.terminate()
+        p.join()
