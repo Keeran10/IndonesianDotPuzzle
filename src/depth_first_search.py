@@ -22,7 +22,7 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
     solution = []
     search = []
     start = time.perf_counter()
-    ALLOCATED_TIME = 3  # how long while loop should last in seconds
+    ALLOCATED_TIME = 30  # how long while loop should last in seconds
     duration = 0
 
     while len(o) != 0:
