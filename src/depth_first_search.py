@@ -1,5 +1,5 @@
 import os, sys
-from data_structure import Graph, Pair
+from data_structure import Graph
 from generate_file import generate_search_file, generate_solution_file
 import copy, functools, time
 
@@ -9,10 +9,8 @@ def depth_first_search(o, c, max_d):
     print("Starting depth-first search...\n")
 
     success = False
-    solution = []
-    search = []
     start = time.perf_counter()
-    ALLOCATED_TIME = 30  # how long while loop should last in seconds
+    ALLOCATED_TIME = 10  # how long while loop should last in seconds
     duration = 0
 
     while len(o) != 0:
@@ -23,7 +21,6 @@ def depth_first_search(o, c, max_d):
             break
 
         print_stack(o, "opened")
-
         root = o.pop()
 
         if is_traversed(root, c):
@@ -32,8 +29,6 @@ def depth_first_search(o, c, max_d):
 
         print("\ntouch", root.touched)
 
-        solution.append(Pair(root.touched, root.state))
-        search.append(root.state)
         c.append(root)
 
         print_stack(c, "closed")
@@ -55,14 +50,15 @@ def depth_first_search(o, c, max_d):
 
         # Add root's children to stack
         children = []
-
         for position in root.dots:
             child = copy.deepcopy(root)
             child.touch(position)
             child.depth = root.depth + 1
             children.append(child)
 
-        sorted(children, key=functools.cmp_to_key(compare_children))
+        # search priority given to states with earlier position of white dots
+        children.sort(key=functools.cmp_to_key(compare_children))
+
         print(
             "Exploring children of "
             + root.state
@@ -87,8 +83,7 @@ def depth_first_search(o, c, max_d):
     print(goal_message)
 
     output = []
-    output.append(search)
-    output.append(solution)
+    output.append(c)
     output.append(error_message)
 
     return output
@@ -103,7 +98,7 @@ def is_traversed(root, c):
     return False
 
 
-# Returns the positive if child1 has white dots at earlier positions than child2
+# Returns +1 if child1 has white dots at earlier positions than child2
 def compare_children(child1, child2):
 
     child1_white_dots = []
@@ -123,22 +118,27 @@ def compare_children(child1, child2):
         else len(child1_white_dots)
     )
 
-    for x in range(size):
+    for x in range(size - 1):
         if child1_white_dots[x] == child2_white_dots[x]:
             continue
-        else:
-            return child1_white_dots[x] - child2_white_dots[x]
-    return 0
+        elif child1_white_dots[x] > child2_white_dots[x]:
+            return -1
+        elif child1_white_dots[x] < child2_white_dots[x]:
+            return 1
+
+    return 1
 
 
 # prints stack with positions to be touched
 def print_stack(stack, stack_type):
 
     print(stack_type + ":")
-    for x in range(len(stack) - 1, 0, -1):
-        if stack[x].touched == None:
-            continue
-        print(stack[x].state, end=" ")
+
+    if len(stack) == 1:
+        print(stack[0].state, end=" ")
+    else:
+        for x in range(len(stack) - 1, -1, -1):
+            print(stack[x].state, end=" ")
 
 
 def main():
@@ -152,8 +152,9 @@ def main():
         c = []  # closed stack
         o.append(graph)
         output = depth_first_search(o, c, graph.max_d)
+        # output[0] = closed list, output[1] = error message
         generate_search_file(output[0], puzzle_count, "dfs")
-        generate_solution_file(output[1], output[2], puzzle_count)
+        generate_solution_file(output[0], output[1], puzzle_count)
         puzzle_count += 1
 
 

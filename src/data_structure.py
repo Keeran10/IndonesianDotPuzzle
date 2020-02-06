@@ -137,10 +137,3 @@ class Graph:
                 values = data[3]
                 graphs.append(Graph(n, max_d, max_l, values))
         return graphs
-
-
-# custom object pair used to generate lines in solution.txt
-class Pair:
-    def __init__(self, touched, state):
-        self.touched = touched
-        self.state = state
