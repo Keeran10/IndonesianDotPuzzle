@@ -30,12 +30,12 @@ class Graph:
         self.n = int(n)  # the size of the graph
         self.max_d = int(max_d)  # the maximum depth search for DFS
         self.max_l = int(max_l)  # the maximum search path length for BFS and A*
-        self.dots = self.processDotValues(values)  # list of all ordered dots
+        self.dots = self.process_dot_values(values)  # list of all ordered dots
         self.touched = "0"
         self.depth = 1
-        self.readableDots = values
+        self.state = values
 
-    def processDotValues(self, values):
+    def process_dot_values(self, values):
         # transform dots values into dot objects
 
         dots = list()
@@ -49,6 +49,8 @@ class Graph:
             dot = Dot(value, position, count)
             dots.append(dot)
 
+            # only top-left need consideration because add_adjacent
+            # bi-directionality will handle the bottom-right edges
             index = len(dots) - 1
             adjacent_top = index - self.n
             adjacent_left = index - 1
@@ -75,49 +77,31 @@ class Graph:
                 column = 1
                 row += 1
 
-        graph_dictionary = {}
+        dot_dictionary = {}
 
         for dot in dots:
-            graph_dictionary[dot.position] = dot
+            dot_dictionary[dot.position] = dot
 
-        return graph_dictionary
-
-    def getBlackDots(self):
-        black_dots = []
-        for key in self.dots:
-            if self.dots.get(key).value == 1:
-                black_dots.append(key)
-        return black_dots
+        return dot_dictionary
 
     def touch(self, position):
         self.dots.get(position).touch()
         self.touched = position
-        self.setReadableDots()
+        self.set_state()
 
-    def setReadableDots(self):
-        self.readableDots = ""
+    def set_state(self):
+        self.state = ""
         for key in self.dots:
-            self.readableDots += str(self.dots.get(key).value)
+            self.state += str(self.dots.get(key).value)
 
-    def isGoalState(self):
-
-        size = self.n * self.n
-        white = 0
-
-        for key in self.dots:
-            if self.dots.get(key).value == 0:
-                white += 1
-
-        if white == size:
-            return True
-        else:
-            return False
+    def is_goal_state(self):
+        goal_state = "0" * (self.n * self.n)
+        return True if self.state == goal_state else False
 
     def print(self):
 
         format_counter = 0
         header_counter = 1
-
         print("\n")
 
         # top-left corner left blank
@@ -141,8 +125,22 @@ class Graph:
 
         print("\n")
 
+    @classmethod
+    def create_graphs(cls, file_path):
+        graphs = []
+        with open(file_path, "r") as f:
+            for line in f:
+                data = line.split()
+                n = data[0]
+                max_d = data[1]
+                max_l = data[2]
+                values = data[3]
+                graphs.append(Graph(n, max_d, max_l, values))
+        return graphs
 
+
+# custom object pair used to generate lines in solution.txt
 class Pair:
-    def __init__(self, position, state):
-        self.position = position
+    def __init__(self, touched, state):
+        self.touched = touched
         self.state = state

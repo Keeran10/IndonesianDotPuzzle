@@ -1,22 +1,12 @@
 import os, sys
-from graph import Graph, Pair
+from data_structure import Graph, Pair
+from generate_file import generate_search_file, generate_solution_file
 import copy, functools, time
 
 
-def createGraphs(file_path):
-    graphs = []
-    with open(file_path, "r") as f:
-        for line in f:
-            data = line.split()
-            n = data[0]
-            max_d = data[1]
-            max_l = data[2]
-            values = data[3]
-            graphs.append(Graph(n, max_d, max_l, values))
-    return graphs
+def depth_first_search(o, c, max_d):
 
-
-def depthFirstSearch(o, c, max_d, puzzle_count):
+    print("Starting depth-first search...\n")
 
     success = False
     solution = []
@@ -32,25 +22,25 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
         if duration > ALLOCATED_TIME:
             break
 
-        printStack(o, "opened")
+        print_stack(o, "opened")
 
         root = o.pop()
 
-        if isTraversed(root, c):
-            print("\nNode " + root.readableDots + " has already been traversed.\n")
+        if is_traversed(root, c):
+            print("\nNode " + root.state + " has already been traversed.\n")
             continue
 
         print("\ntouch", root.touched)
 
-        solution.append(Pair(root.touched, root.readableDots))
-        search.append(root.readableDots)
+        solution.append(Pair(root.touched, root.state))
+        search.append(root.state)
         c.append(root)
 
-        printStack(c, "closed")
+        print_stack(c, "closed")
         root.print()
 
         # Exit DFS if root is goal state
-        if root.isGoalState():
+        if root.is_goal_state():
             success = True
             break
 
@@ -58,26 +48,24 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
         if root.depth == max_d:
             print(
                 "\nMaximum depth reached. Children of node "
-                + root.readableDots
+                + root.state
                 + " will not be explored.\n"
             )
             continue
 
         # Add root's children to stack
-        black_dots = root.getBlackDots()
-        black_dots.reverse()
         children = []
 
-        for black_dot in black_dots:
+        for position in root.dots:
             child = copy.deepcopy(root)
-            child.touch(black_dot)
+            child.touch(position)
             child.depth = root.depth + 1
             children.append(child)
 
-        sorted(children, key=functools.cmp_to_key(compareChildren))
+        sorted(children, key=functools.cmp_to_key(compare_children))
         print(
             "Exploring children of "
-            + root.readableDots
+            + root.state
             + " (depth level: "
             + str(root.depth)
             + ").\n"
@@ -107,16 +95,16 @@ def depthFirstSearch(o, c, max_d, puzzle_count):
 
 
 # Returns true if the state of the current node had already been traversed.
-def isTraversed(root, c):
+def is_traversed(root, c):
     for graph in c:
-        # readableDots contains a stringified representation of the state
-        if root.readableDots == graph.readableDots:
+        # state contains a stringified representation of the state
+        if root.state == graph.state:
             return True
     return False
 
 
 # Returns the positive if child1 has white dots at earlier positions than child2
-def compareChildren(child1, child2):
+def compare_children(child1, child2):
 
     child1_white_dots = []
     child2_white_dots = []
@@ -144,37 +132,18 @@ def compareChildren(child1, child2):
 
 
 # prints stack with positions to be touched
-def printStack(stack, stack_type):
-    print(stack_type + ":", end=" ")
-    for graph in stack:
-        if graph.touched == None:
+def print_stack(stack, stack_type):
+
+    print(stack_type + ":")
+    for x in range(len(stack) - 1, 0, -1):
+        if stack[x].touched == None:
             continue
-        print(graph.touched, end=" ")
-
-
-def generateSolutionFile(solution, error, puzzle_count):
-
-    with open(str(puzzle_count) + "_dfs_solution.txt", "a") as f:
-
-        if error == "No solution found.":
-            f.write(error + "\n")
-            return False
-
-        for line in solution:
-            f.write(line.position + "\t" + line.state + "\n")
-
-
-def generateSearchFile(search, puzzle_count):
-
-    with open(str(puzzle_count) + "_dfs_search.txt", "a") as f:
-
-        for line in search:
-            f.write("0" + "\t" + "0" + "\t" + "0" + "\t" + line + "\n")
+        print(stack[x].state, end=" ")
 
 
 def main():
     # Toggle between the following lines for (1) easy access to test case or (2) perform dfs on demo file
-    graphs = createGraphs(os.path.join(sys.path[0], "test_sample.txt"))
+    graphs = Graph.create_graphs(os.path.join(sys.path[0], "test_sample.txt"))
     # file_path = input("File Path: ")
     # graphs = createGraphs(file_path)
     puzzle_count = 0
@@ -182,9 +151,9 @@ def main():
         o = []  # open stack
         c = []  # closed stack
         o.append(graph)
-        output = depthFirstSearch(o, c, graph.max_d, puzzle_count)
-        generateSearchFile(output[0], puzzle_count)
-        generateSolutionFile(output[1], output[2], puzzle_count)
+        output = depth_first_search(o, c, graph.max_d)
+        generate_search_file(output[0], puzzle_count, "dfs")
+        generate_solution_file(output[1], output[2], puzzle_count)
         puzzle_count += 1
 
 
