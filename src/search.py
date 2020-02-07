@@ -8,7 +8,7 @@ def depth_first_search(opened, closed):
     print("\nStarting depth-first search...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 300  # how long while loop should last in seconds
+    ALLOCATED_TIME = 3600  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
@@ -18,20 +18,19 @@ def depth_first_search(opened, closed):
             break
 
         # Remove root from opened list and print it
-
-        print_stack(opened, "opened")
+        ## print_stack(opened, "opened")
         root = opened.pop()
-        print("\ntouched", root.touched)
+        ## print("\ntouched", root.touched)
 
         # Exit DFS if root is goal state
         if root.is_goal_state():
             success = True
             closed.append(root)
-            print_stack(closed, "closed")
+            ## print_stack(closed, "closed")
             root.print()
             break
 
-        print_stack(closed, "closed")
+        ## print_stack(closed, "closed")
         root.print()
 
         # Backtrack by not expanding root's children
@@ -80,6 +79,7 @@ def is_in_opened_closed_lists(child, opened, closed):
     is_known = False
     for node in closed:
         # state contains a stringified representation of the state
+        # depth must be accounted for
         if child.state == node.state and child.depth == node.depth:
             is_known = True
     for node in opened:
@@ -104,7 +104,6 @@ def add_sorted_children_to_opened_list(root, children, opened):
             + ").\n"
         )
         opened.extend(children)
-        print_stack(opened, "opened")
 
 
 # Returns +1 if child1 has white dots at earlier positions than child2
