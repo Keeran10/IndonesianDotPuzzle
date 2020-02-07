@@ -1,4 +1,5 @@
 # Indonesian Dot Puzzle
+https://github.com/Keeran10/IndonesianDotPuzzle
 
 Exploring the following search algorithms for this board game: depth-first, best-first and A*. 
 
