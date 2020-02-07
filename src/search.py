@@ -4,11 +4,11 @@ from generate_file import generate_search_file, generate_solution_file
 import copy, functools, time
 
 
-def depth_first_search(opened, closed, max_depth):
+def depth_first_search(opened, closed):
     print("\nStarting depth-first search...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 100  # how long while loop should last in seconds
+    ALLOCATED_TIME = 300  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
@@ -18,9 +18,10 @@ def depth_first_search(opened, closed, max_depth):
             break
 
         # Remove root from opened list and print it
-        print_stack(opened, "opened")
+
+        # print_stack(opened, "opened")
         root = opened.pop()
-        print("\ntouch", root.touched)
+        print("\ntouched", root.touched)
 
         # Exit DFS if root is goal state
         if root.is_goal_state():
@@ -34,7 +35,7 @@ def depth_first_search(opened, closed, max_depth):
         root.print()
 
         # Backtrack by not expanding root's children
-        if root.depth == max_depth:
+        if root.depth == root.max_d:
             print(
                 "\nMaximum depth reached. Children of node "
                 + root.state
@@ -62,13 +63,12 @@ def depth_first_search(opened, closed, max_depth):
 def generate_children(root, opened, closed):
     children = []
     for position in root.dots:
-        root.touch(position, True)
-        if is_in_open_closed_lists(root, opened, closed):
-            root.touch(position, True)
-        else:
-            root.touch(position, True)
-            child = copy.deepcopy(root)
-            child.touch(position, False)
+        # touching same position twice is redundant as it gives the same state
+        if position == root.touched:
+            continue
+        child = copy.deepcopy(root)
+        child.touch(position)
+        if not is_in_opened_closed_lists(child, opened, closed):
             child.depth = root.depth + 1
             child.parent = root
             children.append(child)
@@ -76,19 +76,17 @@ def generate_children(root, opened, closed):
 
 
 # Returns true if the state of the current node is found in open or closed lists
-def is_in_open_closed_lists(root, o, c):
+def is_in_opened_closed_lists(child, opened, closed):
     is_known = False
-    for graph in c:
+    for node in closed:
         # state contains a stringified representation of the state
-        if root.state == graph.state:
+        if child.state == node.state and child.depth == node.depth:
             is_known = True
-    for graph in o:
-        if root.state == graph.state:
+    for node in opened:
+        if child.state == node.state and child.depth == node.depth:
             is_known = True
-
     if is_known:
-        print_stack(o, "opened")
-        print("\nChild " + root.state + " is a known state. Will not be traversed.\n")
+        print("\nChild " + child.state + " is a known state. Will not be traversed.\n")
     return is_known
 
 
@@ -97,7 +95,7 @@ def add_sorted_children_to_opened_list(root, children, opened):
     if len(children) == 0:
         print("\nNode " + root.state + " does not have children to explore.\n")
     else:
-        children.sort(key=functools.cmp_to_key(compare_children))
+        children.sort(key=functools.cmp_to_key(sort_children_by_leading_zeros))
         print(
             "\nExploring children of "
             + root.state
@@ -106,37 +104,21 @@ def add_sorted_children_to_opened_list(root, children, opened):
             + ").\n"
         )
         opened.extend(children)
+        print_stack(opened, "opened")
 
 
 # Returns +1 if child1 has white dots at earlier positions than child2
-def compare_children(child1, child2):
-
-    child1_white_dots = []
-    child2_white_dots = []
-
-    for key in child1.dots:
-        if child1.dots.get(key).value == 0:
-            child1_white_dots.append(child1.dots.get(key).index)
-
-    for key in child2.dots:
-        if child2.dots.get(key).value == 0:
-            child2_white_dots.append(child2.dots.get(key).index)
-
-    size = (
-        len(child2_white_dots)
-        if len(child1_white_dots) >= len(child2_white_dots)
-        else len(child1_white_dots)
-    )
-
-    for x in range(size - 1):
-        if child1_white_dots[x] == child2_white_dots[x]:
+def sort_children_by_leading_zeros(child1, child2):
+    for x in range(len(child1.state) - 1):
+        character1 = child1.state[x]
+        character2 = child2.state[x]
+        if int(character1) == int(character2):
             continue
-        elif child1_white_dots[x] > child2_white_dots[x]:
-            return -1
-        elif child1_white_dots[x] < child2_white_dots[x]:
+        elif int(character1) < int(character2):
             return 1
-
-    return 1
+        else:
+            return -1
+    return 0
 
 
 # prints stack with positions to be touched
@@ -183,7 +165,7 @@ def main():
         o = []  # open stack
         c = []  # closed stack
         o.append(graph)
-        output = depth_first_search(o, c, graph.max_d)
+        output = depth_first_search(o, c)
         # output[0] = search path, output[1] = solution path, output[2] = error message
         generate_search_file(output[0], puzzle_count, "dfs")
         generate_solution_file(output[1], output[2], puzzle_count)

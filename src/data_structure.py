@@ -1,8 +1,7 @@
 class Dot:
-    def __init__(self, value, position, index):
+    def __init__(self, value, position):
         self.value = int(value)
         self.position = position
-        self.index = index
         self.adjacents = list()
 
     def add_adjacent(self, adjacent):
@@ -38,16 +37,14 @@ class Graph:
 
     def process_dot_values(self, values):
         # transform dots values into dot objects
-
         dots = list()
         row = 65
         column = 1
-        count = 0
 
         for value in values:
 
             position = chr(row) + str(column)
-            dot = Dot(value, position, count)
+            dot = Dot(value, position)
             dots.append(dot)
 
             # only top-left need consideration because add_adjacent
@@ -72,24 +69,20 @@ class Graph:
                 dot.add_adjacent(dots[adjacent_left])
 
             column += 1
-            count += 1
-
             if column > self.n:
                 column = 1
                 row += 1
 
         dot_dictionary = {}
-
         for dot in dots:
             dot_dictionary[dot.position] = dot
 
         return dot_dictionary
 
-    def touch(self, position, is_temporary):
+    def touch(self, position):
         self.dots.get(position).touch()
+        self.touched = position
         self.set_state()
-        if is_temporary == False:
-            self.touched = position
 
     def set_state(self):
         self.state = ""
