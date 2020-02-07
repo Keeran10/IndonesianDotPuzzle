@@ -85,10 +85,11 @@ class Graph:
 
         return dot_dictionary
 
-    def touch(self, position):
+    def touch(self, position, is_temporary):
         self.dots.get(position).touch()
-        self.touched = position
         self.set_state()
+        if is_temporary == False:
+            self.touched = position
 
     def set_state(self):
         self.state = ""
