@@ -8,7 +8,7 @@ def depth_first_search(opened, closed):
     print("\nStarting depth-first search...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 3600  # how long while loop should last in seconds
+    ALLOCATED_TIME = 300  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
@@ -20,7 +20,7 @@ def depth_first_search(opened, closed):
         # Remove root from opened list and print it
         ## print_stack(opened, "opened")
         root = opened.pop()
-        ## print("\ntouched", root.touched)
+        print("\ntouch", root.touched)
 
         # Exit DFS if root is goal state
         if root.is_goal_state():
