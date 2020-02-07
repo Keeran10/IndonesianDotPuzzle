@@ -6,7 +6,7 @@ def generate_search_file(closed, puzzle_count, algorithm):
                 f.write("0" + "\t" + "0" + "\t" + "0" + "\t" + line.state + "\n")
 
 
-def generate_solution_file(closed, error, puzzle_count):
+def generate_solution_file(goal_state, error, puzzle_count):
 
     with open(str(puzzle_count) + "_dfs_solution.txt", "w") as f:
 
@@ -14,6 +14,22 @@ def generate_solution_file(closed, error, puzzle_count):
             f.write(error + "\n")
             return False
 
-        for line in closed:
+        solution = []
+
+        get_solution_path(goal_state, solution)
+
+        for line in solution:
             f.write(line.touched + "\t" + line.state + "\n")
 
+
+def get_solution_path(root, solution):
+
+    if root.parent == None:
+        solution.reverse()
+        return solution
+
+    if len(solution) == 0:
+        solution.append(root)
+
+    solution.append(root.parent)
+    get_solution_path(root.parent, solution)

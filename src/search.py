@@ -6,13 +6,12 @@ import copy, functools, time
 
 def depth_first_search(o, c, max_d):
 
-    print("Starting depth-first search...\n")
+    print("\nStarting depth-first search...\n")
 
     success = False
     start = time.perf_counter()
     ALLOCATED_TIME = 100  # how long while loop should last in seconds
     duration = 0
-    solution = []
 
     while len(o) != 0:
 
@@ -24,11 +23,13 @@ def depth_first_search(o, c, max_d):
         print_stack(o, "opened")
         root = o.pop()
         print("\ntouch", root.touched)
-        solution.append(root)
 
         # Exit DFS if root is goal state
         if root.is_goal_state():
             success = True
+            c.append(root)
+            print_stack(c, "closed")
+            root.print()
             break
 
         print_stack(c, "closed")
@@ -53,6 +54,7 @@ def depth_first_search(o, c, max_d):
                 print("Node " + root.state + " has already been traversed.\n")
                 continue
             child.depth = root.depth + 1
+            child.parent = root
             children.append(child)
 
         c.append(root)
@@ -84,7 +86,8 @@ def depth_first_search(o, c, max_d):
     print(goal_message)
 
     output = []
-    output.append(solution)
+    output.append(c)
+    output.append(c[-1])
     output.append(error_message)
 
     return output
@@ -144,7 +147,7 @@ def print_stack(stack, stack_type):
 
 def main():
     # Toggle between the following lines for (1) easy access to test case or (2) perform dfs on demo file
-    graphs = Graph.create_graphs(os.path.join(sys.path[0], "test_sample.txt"))
+    graphs = Graph.create_graphs(os.path.join(sys.path[0], "sample.txt"))
     # file_path = input("File Path: ")
     # graphs = createGraphs(file_path)
     puzzle_count = 0
@@ -153,9 +156,9 @@ def main():
         c = []  # closed stack
         o.append(graph)
         output = depth_first_search(o, c, graph.max_d)
-        # output[0] = closed list, output[1] = error message
+        # output[0] = search path, output[1] = solution path, output[2] = error message
         generate_search_file(output[0], puzzle_count, "dfs")
-        generate_solution_file(output[0], output[1], puzzle_count)
+        generate_solution_file(output[1], output[2], puzzle_count)
         puzzle_count += 1
 
 

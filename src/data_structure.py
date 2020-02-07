@@ -33,6 +33,7 @@ class Graph:
         self.dots = self.process_dot_values(values)  # list of all ordered dots
         self.touched = "0"
         self.depth = 1
+        self.parent = None
         self.state = values
 
     def process_dot_values(self, values):
