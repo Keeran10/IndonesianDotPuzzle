@@ -19,7 +19,7 @@ def depth_first_search(opened, closed):
 
         # Remove root from opened list and print it
 
-        # print_stack(opened, "opened")
+        print_stack(opened, "opened")
         root = opened.pop()
         print("\ntouched", root.touched)
 
