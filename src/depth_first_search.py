@@ -10,8 +10,9 @@ def depth_first_search(o, c, max_d):
 
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 10  # how long while loop should last in seconds
+    ALLOCATED_TIME = 100  # how long while loop should last in seconds
     duration = 0
+    solution = []
 
     while len(o) != 0:
 
@@ -22,22 +23,16 @@ def depth_first_search(o, c, max_d):
 
         print_stack(o, "opened")
         root = o.pop()
-
-        if is_traversed(root, c):
-            print("\nNode " + root.state + " has already been traversed.\n")
-            continue
-
         print("\ntouch", root.touched)
-
-        c.append(root)
-
-        print_stack(c, "closed")
-        root.print()
+        solution.append(root)
 
         # Exit DFS if root is goal state
         if root.is_goal_state():
             success = True
             break
+
+        print_stack(c, "closed")
+        root.print()
 
         # Backtrack by not expanding root's children
         if root.depth == max_d:
@@ -49,12 +44,18 @@ def depth_first_search(o, c, max_d):
             continue
 
         # Add root's children to stack
+        print("Generating children...")
         children = []
         for position in root.dots:
             child = copy.deepcopy(root)
             child.touch(position)
+            if is_traversed(root, c):
+                print("Node " + root.state + " has already been traversed.\n")
+                continue
             child.depth = root.depth + 1
             children.append(child)
+
+        c.append(root)
 
         # search priority given to states with earlier position of white dots
         children.sort(key=functools.cmp_to_key(compare_children))
@@ -83,7 +84,7 @@ def depth_first_search(o, c, max_d):
     print(goal_message)
 
     output = []
-    output.append(c)
+    output.append(solution)
     output.append(error_message)
 
     return output
