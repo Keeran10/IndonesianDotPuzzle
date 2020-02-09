@@ -1,9 +1,10 @@
-# Indonesian Dot Puzzle
 https://github.com/Keeran10/IndonesianDotPuzzle
+
+# Indonesian Dot Puzzle
 
 Exploring the following search algorithms for this board game: depth-first, best-first and A*. 
 
-To run the project on the lab computers:
+<b>To run the project on the lab computers:</b>
 1) Login to linux on a lab computer.
 2) Download or clone this repository.
 3) Open linux terminal and `cd` into the downloaded directory.
