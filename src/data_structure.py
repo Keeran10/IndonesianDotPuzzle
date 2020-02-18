@@ -3,6 +3,7 @@ class Dot:
         self.value = int(value)
         self.position = position
         self.adjacents = list()
+        self.is_touched = False
 
     def add_adjacent(self, adjacent):
         # accounts for bi-directionality between dots
@@ -22,18 +23,30 @@ class Dot:
             self.value = 1
         else:
             self.value = 0
+        self.is_touched = True
 
 
 class Graph:
     def __init__(self, n, max_d, max_l, values):
         self.n = int(n)  # the size of the graph
         self.max_d = int(max_d)  # the maximum depth search for DFS
-        self.max_l = int(max_l)  # the maximum search path length for BFS and A*
+        # the maximum search path length for BFS and A*
+        self.max_l = int(max_l)
         self.dots = self.process_dot_values(values)  # list of all ordered dots
         self.touched = "0"
         self.depth = 1
         self.parent = None
         self.state = values
+        self.heuristic = None
+
+    # graphes that have been touched less is more likely to become the solution
+    # find how many dots in the graph have not been touched
+    def get_total_not_touched(self):
+        total_touches = 0
+        for key in self.dots:
+            total_touches = total_touches + self.dots[key].is_touched
+        self.heuristic = len(self.dots) - total_touches
+        return self.heuristic
 
     def process_dot_values(self, values):
         # transform dots values into dot objects

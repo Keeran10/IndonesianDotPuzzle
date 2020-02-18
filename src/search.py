@@ -1,7 +1,10 @@
-import os, sys
+import os
+import sys
 from data_structure import Graph
 from generate_file import generate_search_file, generate_solution_file
-import copy, functools, time
+import copy
+import functools
+import time
 
 
 def depth_first_search(opened, closed):
@@ -58,6 +61,60 @@ def depth_first_search(opened, closed):
     return output
 
 
+def best_first_search(opened, closed):
+    print("\nStarting best-first search...\n")
+    success = False
+    start = time.perf_counter()
+    ALLOCATED_TIME = 300  # how long while loop should last in seconds
+    duration = 0
+
+    while len(opened) != 0:
+        # Time counter set to avoid extensive search
+        duration = time.perf_counter() - start
+        if duration > ALLOCATED_TIME:
+            break
+
+        # Remove root from opened list and print it
+        ## print_stack(opened, "opened")
+        root = opened.pop()
+        print("\ntouch", root.touched)
+
+        # Exit DFS if root is goal state
+        if root.is_goal_state():
+            success = True
+            closed.append(root)
+            ## print_stack(closed, "closed")
+            root.print()
+            break
+
+        ## print_stack(closed, "closed")
+        root.print()
+
+        # Backtrack by not expanding root's children
+        if root.depth == root.max_l:
+            print(
+                "\nMaximum depth reached. Children of node "
+                + root.state
+                + " will not be explored.\n"
+            )
+            continue
+
+        # Generate root's children
+        children = generate_children(root, opened, closed)
+
+        # Add root to closed list
+        closed.append(root)
+
+        # Sort children by earliest occurence of white dots
+        # Add them to opened list
+        add_sorted_children_to_opened_list_by_heuristic(root, children, opened)
+
+    # print and extract required data for search/solution files into output list
+    output = procress_dfs_results(closed, success, duration, ALLOCATED_TIME)
+
+    return output
+
+
 # Returns children filtered by known states in opened, closed lists
 def generate_children(root, opened, closed):
     children = []
@@ -86,8 +143,50 @@ def is_in_opened_closed_lists(child, opened, closed):
         if child.state == node.state and child.depth == node.depth:
             is_known = True
     if is_known:
-        print("\nChild " + child.state + " is a known state. Will not be traversed.\n")
+        print("\nChild " + child.state +
+              " is a known state. Will not be traversed.\n")
     return is_known
+
+
+# Sort and add children to opened list by heuristic
+def add_sorted_children_to_opened_list_by_heuristic(root, children, opened):
+    if len(children) == 0:
+        print("\nNode " + root.state + " does not have children to explore.\n")
+    else:
+        children.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
+        print(
+            "\nExploring children of "
+            + root.state
+            + " (depth level: "
+            + str(root.depth)
+            + ").\n"
+        )
+        opened.extend(children)
+
+
+def sort_children_by_heuristic(child1, child2):
+    for x in range(len(child1.state) - 1):
+        if child1.heuristic is None:
+            child1.get_total_not_touched()
+        if child2.heuristic is None:
+            child2.get_total_not_touched()
+        character1 = child1.heuristic
+        character2 = child2.heuristic
+        if int(character1) == int(character2):
+            # if equals, sort by leading zero
+            character3 = child1.state[x]
+            character4 = child2.state[x]
+            if int(character3) == int(character4):
+                continue
+            elif int(character3) < int(character4):
+                return 1
+            else:
+                return -1
+        elif int(character1) < int(character2):
+            return 1
+        else:
+            return -1
+    return 0
 
 
 # Sort and add children to opened list
@@ -132,12 +231,36 @@ def print_stack(stack, stack_type):
             print(stack[x].state, end=" ")
 
 
+def procress_bfs_results(closed, success, duration, ALLOCATED_TIME):
+    goal_message = "Goal state achieved."
+    error_message = " "
+
+    if duration > ALLOCATED_TIME:
+        print("\nBFS ran past allocated time of " +
+              str(ALLOCATED_TIME) + " seconds.\n")
+    else:
+        print(f"\nBFS completed in {duration:0.4f} seconds.\n")
+
+    if not success:
+        goal_message = "Goal state not found.\n"
+        error_message = "No solution found."
+
+    print(goal_message)
+
+    output = []
+    output.append(closed)
+    output.append(closed[-1])
+    output.append(error_message)
+    return output
+
+
 def procress_dfs_results(closed, success, duration, ALLOCATED_TIME):
     goal_message = "Goal state achieved."
     error_message = " "
 
     if duration > ALLOCATED_TIME:
-        print("\nDFS ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
+        print("\nDFS ran past allocated time of " +
+              str(ALLOCATED_TIME) + " seconds.\n")
     else:
         print(f"\nDFS completed in {duration:0.4f} seconds.\n")
 
@@ -164,9 +287,11 @@ def main():
         o = []  # open stack
         c = []  # closed stack
         o.append(graph)
-        output = depth_first_search(o, c)
+        # output = depth_first_search(o, c)
+        output = best_first_search(o, c)
         # output[0] = search path, output[1] = solution path, output[2] = error message
-        generate_search_file(output[0], puzzle_count, "dfs")
+        # generate_search_file(output[0], puzzle_count, "dfs")
+        generate_search_file(output[0], puzzle_count, "bfs")
         generate_solution_file(output[1], output[2], puzzle_count)
         puzzle_count += 1
 
