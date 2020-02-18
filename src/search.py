@@ -107,10 +107,10 @@ def best_first_search(opened, closed):
 
         # Sort children by earliest occurence of white dots
         # Add them to opened list
-        add_sorted_children_to_opened_list_by_heuristic(root, children, opened)
+        add_children_to_opened_list_sort_by_heuristic(root, children, opened)
 
     # print and extract required data for search/solution files into output list
-    output = procress_dfs_results(closed, success, duration, ALLOCATED_TIME)
+    output = procress_bfs_results(closed, success, duration, ALLOCATED_TIME)
 
     return output
 
@@ -149,11 +149,12 @@ def is_in_opened_closed_lists(child, opened, closed):
 
 
 # Sort and add children to opened list by heuristic
-def add_sorted_children_to_opened_list_by_heuristic(root, children, opened):
+def add_children_to_opened_list_sort_by_heuristic(root, children, opened):
     if len(children) == 0:
         print("\nNode " + root.state + " does not have children to explore.\n")
     else:
-        children.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
+        opened.extend(children)
+        opened.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
         print(
             "\nExploring children of "
             + root.state
@@ -161,7 +162,6 @@ def add_sorted_children_to_opened_list_by_heuristic(root, children, opened):
             + str(root.depth)
             + ").\n"
         )
-        opened.extend(children)
 
 
 def sort_children_by_heuristic(child1, child2):
