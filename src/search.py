@@ -78,8 +78,8 @@ def best_first_search(opened, closed):
         ## print_stack(opened, "opened")
         root = opened.pop()
         print("\ntouch", root.touched)
-
-        # Exit DFS if root is goal state
+        root.get_heuristic()
+        # Exit BFS if root is goal state
         if root.is_goal_state():
             success = True
             closed.append(root)
@@ -106,16 +106,17 @@ def best_first_search(opened, closed):
         closed.append(root)
 
         # Sort children by earliest occurence of white dots
-        # Add them to opened list
-        add_children_to_opened_list_sort_by_heuristic(root, children, opened)
+        # Add them to opened list and then sort by heuristic
+        add_children_to_opened_list_then_sort(root, children, opened)
 
     # print and extract required data for search/solution files into output list
-    output = procress_bfs_results(closed, success, duration, ALLOCATED_TIME)
+    output = procress_dfs_results(closed, success, duration, ALLOCATED_TIME)
 
     return output
 
-
 # Returns children filtered by known states in opened, closed lists
+
+
 def generate_children(root, opened, closed):
     children = []
     for position in root.dots:
@@ -219,6 +220,37 @@ def sort_children_by_leading_zeros(child1, child2):
     return 0
 
 
+# Sort and add children to opened list
+def add_children_to_opened_list_then_sort(root, children, opened):
+    if len(children) == 0:
+        print("\nNode " + root.state + " does not have children to explore.\n")
+    else:
+        opened.extend(children)
+        opened.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
+        print(
+            "\nExploring children of "
+            + root.state
+            + " (depth level: "
+            + str(root.depth)
+            + ").\n"
+        )
+
+# Returns +1 if child1 has white dots at less positions than child2
+
+
+def sort_children_by_heuristic(child1, child2):
+    character1 = child1.get_heuristic()
+    character2 = child2.get_heuristic()
+    if int(character1) == int(character2):
+        # if equals, sort by leading zero
+        sort_children_by_leading_zeros(child1, child2)
+    if int(character1) < int(character2):
+        return 1
+    else:
+        return -1
+    return 0
+
+
 # prints stack with positions to be touched
 def print_stack(stack, stack_type):
 
@@ -290,9 +322,8 @@ def main():
         # output = depth_first_search(o, c)
         output = best_first_search(o, c)
         # output[0] = search path, output[1] = solution path, output[2] = error message
-        # generate_search_file(output[0], puzzle_count, "dfs")
         generate_search_file(output[0], puzzle_count, "bfs")
-        generate_solution_file(output[1], output[2], puzzle_count)
+        generate_solution_file(output[1], output[2], puzzle_count, "bfs")
         puzzle_count += 1
 
 

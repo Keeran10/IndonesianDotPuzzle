@@ -1,3 +1,6 @@
+import math
+
+
 class Dot:
     def __init__(self, value, position):
         self.value = int(value)
@@ -39,13 +42,14 @@ class Graph:
         self.state = values
         self.heuristic = None
 
-    # graphes that have been touched less is more likely to become the solution
-    # find how many dots in the graph have not been touched
-    def get_total_not_touched(self):
-        total_touches = 0
-        for key in self.dots:
-            total_touches = total_touches + self.dots[key].is_touched
-        self.heuristic = len(self.dots) - total_touches
+    # graphes that have less 1's are more likely to become the solution
+    # ceiling function is the minium
+
+    def get_heuristic(self):
+        total_touch_number = 0
+        for x in range(len(self.state) - 1):
+            total_touch_number = total_touch_number + int(self.state[x])
+        self.heuristic = math.ceil(total_touch_number/5)
         return self.heuristic
 
     def process_dot_values(self, values):
