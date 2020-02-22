@@ -65,7 +65,7 @@ def best_first_search(opened, closed):
     print("\nStarting best-first search...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 300  # how long while loop should last in seconds
+    ALLOCATED_TIME = 3000  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
@@ -165,31 +165,6 @@ def add_children_to_opened_list_sort_by_heuristic(root, children, opened):
         )
 
 
-def sort_children_by_heuristic(child1, child2):
-    for x in range(len(child1.state) - 1):
-        if child1.heuristic is None:
-            child1.get_total_not_touched()
-        if child2.heuristic is None:
-            child2.get_total_not_touched()
-        character1 = child1.heuristic
-        character2 = child2.heuristic
-        if int(character1) == int(character2):
-            # if equals, sort by leading zero
-            character3 = child1.state[x]
-            character4 = child2.state[x]
-            if int(character3) == int(character4):
-                continue
-            elif int(character3) < int(character4):
-                return 1
-            else:
-                return -1
-        elif int(character1) < int(character2):
-            return 1
-        else:
-            return -1
-    return 0
-
-
 # Sort and add children to opened list
 def add_sorted_children_to_opened_list(root, children, opened):
     if len(children) == 0:
@@ -235,9 +210,8 @@ def add_children_to_opened_list_then_sort(root, children, opened):
             + ").\n"
         )
 
+
 # Returns +1 if child1 has white dots at less positions than child2
-
-
 def sort_children_by_heuristic(child1, child2):
     character1 = child1.get_heuristic()
     character2 = child2.get_heuristic()
@@ -311,7 +285,7 @@ def procress_dfs_results(closed, success, duration, ALLOCATED_TIME):
 
 def main():
     # Toggle between the following lines for (1) easy access to test case or (2) perform dfs on demo file
-    graphs = Graph.create_graphs(os.path.join(sys.path[0], "sample.txt"))
+    graphs = Graph.create_graphs(os.path.join(sys.path[0], "sample2.txt"))
     # file_path = input("File Path: ")
     # graphs = createGraphs(file_path)
     puzzle_count = 0
