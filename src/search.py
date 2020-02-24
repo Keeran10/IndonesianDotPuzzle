@@ -22,13 +22,14 @@ def depth_first_search(opened, closed):
 
         # Remove root from opened list and print it
         ## print_stack(opened, "opened")
-        root = opened.pop()
+        root = opened.popitem()[1]
+
         print("\ntouch", root.touched)
 
         # Exit DFS if root is goal state
         if root.is_goal_state():
             success = True
-            closed.append(root)
+            closed[root.state + str(root.depth)] = root
             ## print_stack(closed, "closed")
             root.print()
             break
@@ -49,7 +50,7 @@ def depth_first_search(opened, closed):
         children = generate_children(root, opened, closed)
 
         # Add root to closed list
-        closed.append(root)
+        closed[root.state + str(root.depth)] = root
 
         # Sort children by earliest occurence of white dots
         # Add them to opened list
@@ -114,6 +115,7 @@ def best_first_search(opened, closed):
 
     return output
 
+
 # Returns children filtered by known states in opened, closed lists
 
 
@@ -135,17 +137,12 @@ def generate_children(root, opened, closed):
 # Returns true if the state of the current node is found in open or closed lists
 def is_in_opened_closed_lists(child, opened, closed):
     is_known = False
-    for node in closed:
-        # state contains a stringified representation of the state
-        # depth must be accounted for
-        if child.state == node.state and child.depth == node.depth:
-            is_known = True
-    for node in opened:
-        if child.state == node.state and child.depth == node.depth:
-            is_known = True
+    if opened.get(child.state + str(child.depth)) != None:
+        is_known = True
+    if closed.get(child.state + str(child.depth)) != None:
+        is_known = True
     if is_known:
-        print("\nChild " + child.state +
-              " is a known state. Will not be traversed.\n")
+        print("\nChild " + child.state + " is a known state. Will not be traversed.\n")
     return is_known
 
 
@@ -178,7 +175,9 @@ def add_sorted_children_to_opened_list(root, children, opened):
             + str(root.depth)
             + ").\n"
         )
-        opened.extend(children)
+
+        for child in children:
+            opened[child.state + str(child.depth)] = child
 
 
 # Returns +1 if child1 has white dots at earlier positions than child2
@@ -242,8 +241,7 @@ def procress_bfs_results(closed, success, duration, ALLOCATED_TIME):
     error_message = " "
 
     if duration > ALLOCATED_TIME:
-        print("\nBFS ran past allocated time of " +
-              str(ALLOCATED_TIME) + " seconds.\n")
+        print("\nBFS ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
     else:
         print(f"\nBFS completed in {duration:0.4f} seconds.\n")
 
@@ -265,8 +263,7 @@ def procress_dfs_results(closed, success, duration, ALLOCATED_TIME):
     error_message = " "
 
     if duration > ALLOCATED_TIME:
-        print("\nDFS ran past allocated time of " +
-              str(ALLOCATED_TIME) + " seconds.\n")
+        print("\nDFS ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
     else:
         print(f"\nDFS completed in {duration:0.4f} seconds.\n")
 
@@ -278,26 +275,26 @@ def procress_dfs_results(closed, success, duration, ALLOCATED_TIME):
 
     output = []
     output.append(closed)
-    output.append(closed[-1])
+    output.append(list(closed.values())[-1])
     output.append(error_message)
     return output
 
 
 def main():
     # Toggle between the following lines for (1) easy access to test case or (2) perform dfs on demo file
-    graphs = Graph.create_graphs(os.path.join(sys.path[0], "sample2.txt"))
+    graphs = Graph.create_graphs(os.path.join(sys.path[0], "sample.txt"))
     # file_path = input("File Path: ")
     # graphs = createGraphs(file_path)
     puzzle_count = 0
     for graph in graphs:
-        o = []  # open stack
-        c = []  # closed stack
-        o.append(graph)
-        # output = depth_first_search(o, c)
-        output = best_first_search(o, c)
+        o = {}  # open stack
+        c = {}  # closed stack
+        o[graph.state + str(graph.depth)] = graph
+        output = depth_first_search(o, c)
+        # output = best_first_search(o, c)
         # output[0] = search path, output[1] = solution path, output[2] = error message
-        generate_search_file(output[0], puzzle_count, "bfs")
-        generate_solution_file(output[1], output[2], puzzle_count, "bfs")
+        generate_search_file(output[0], puzzle_count, "dfs")
+        generate_solution_file(output[1], output[2], puzzle_count, "dfs")
         puzzle_count += 1
 
 

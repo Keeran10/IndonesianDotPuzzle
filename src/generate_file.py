@@ -1,14 +1,21 @@
 def generate_search_file(closed, puzzle_count, algorithm):
     if algorithm == "dfs":
         with open(str(puzzle_count) + "_dfs_search.txt", "w") as f:
-            for line in closed:
-                f.write("0" + "\t" + "0" + "\t" +
-                        "0" + "\t" + line.state + "\n")
+            for line in closed.values():
+                f.write("0" + "\t" + "0" + "\t" + "0" + "\t" + line.state + "\n")
     else:
         with open(str(puzzle_count) + "_bfs_search.txt", "w") as f:
             for line in closed:
-                f.write(str(line.heuristic) + "\t" + "g(n)" + "\t" +
-                        str(line.heuristic) + "\t" + line.state + "\n")
+                f.write(
+                    str(line.heuristic)
+                    + "\t"
+                    + "g(n)"
+                    + "\t"
+                    + str(line.heuristic)
+                    + "\t"
+                    + line.state
+                    + "\n"
+                )
 
 
 def generate_solution_file(goal_state, error, puzzle_count, algorithm):
