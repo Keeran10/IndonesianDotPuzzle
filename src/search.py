@@ -98,7 +98,7 @@ def best_first_search(opened, closed, max_length):
         closed[root.state + str(root.depth)] = root
 
         if len(closed) == max_length:
-            print("Max search length reached. Aborting...")
+            print("Max search length reached of " + str(max_length) + ". Aborting...")
             break
 
         # Sort children by earliest occurence of white dots
@@ -292,16 +292,20 @@ def main():
     # graphs = createGraphs(file_path)
     puzzle_count = 0
     for graph in graphs:
-        o = {}  # open stack
-        c = {}  # closed stack
-        o[graph.state + str(graph.depth)] = graph
-        # output[0] = search path, output[1] = solution path, output[2] = error message
+        o_dfs = {}  # open stack
+        c_dfs = {}  # closed stack
+        o_dfs[graph.state + str(graph.depth)] = graph
 
-        output_dfs = depth_first_search(o, c)
+        # What is output? output[0] = search path, output[1] = solution path, output[2] = error message
+        output_dfs = depth_first_search(o_dfs, c_dfs)
         generate_search_file(output_dfs[0], puzzle_count, "dfs")
         generate_solution_file(output_dfs[1], output_dfs[2], puzzle_count, "dfs")
 
-        output_bfs = best_first_search(o, c, graph.max_l)
+        o_bfs = {}  # open stack
+        c_bfs = {}  # closed stack
+        o_bfs[graph.state + str(graph.depth)] = graph
+
+        output_bfs = best_first_search(o_bfs, c_bfs, graph.max_l)
         generate_search_file(output_bfs[0], puzzle_count, "bfs")
         generate_solution_file(output_bfs[1], output_bfs[2], puzzle_count, "bfs")
 
