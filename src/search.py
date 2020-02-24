@@ -62,7 +62,7 @@ def depth_first_search(opened, closed):
     return output
 
 
-def best_first_search(opened, closed):
+def best_first_search(opened, closed, max_length):
     print("\nStarting best-first search...\n")
     success = False
     start = time.perf_counter()
@@ -77,13 +77,13 @@ def best_first_search(opened, closed):
 
         # Remove root from opened list and print it
         ## print_stack(opened, "opened")
-        root = opened.pop()
+        root = opened.popitem()[1]
         print("\ntouch", root.touched)
         root.get_heuristic()
         # Exit BFS if root is goal state
         if root.is_goal_state():
             success = True
-            closed.append(root)
+            closed[root.state + str(root.depth)] = root
             ## print_stack(closed, "closed")
             root.print()
             break
@@ -91,27 +91,22 @@ def best_first_search(opened, closed):
         ## print_stack(closed, "closed")
         root.print()
 
-        # Backtrack by not expanding root's children
-        if root.depth == root.max_l:
-            print(
-                "\nMaximum depth reached. Children of node "
-                + root.state
-                + " will not be explored.\n"
-            )
-            continue
-
         # Generate root's children
         children = generate_children(root, opened, closed)
 
         # Add root to closed list
-        closed.append(root)
+        closed[root.state + str(root.depth)] = root
+
+        if len(closed) == max_length:
+            print("Max search length reached. Aborting...")
+            break
 
         # Sort children by earliest occurence of white dots
         # Add them to opened list and then sort by heuristic
         add_children_to_opened_list_then_sort(root, children, opened)
 
     # print and extract required data for search/solution files into output list
-    output = procress_dfs_results(closed, success, duration, ALLOCATED_TIME)
+    output = procress_bfs_results(closed, success, duration, ALLOCATED_TIME)
 
     return output
 
@@ -199,8 +194,18 @@ def add_children_to_opened_list_then_sort(root, children, opened):
     if len(children) == 0:
         print("\nNode " + root.state + " does not have children to explore.\n")
     else:
-        opened.extend(children)
-        opened.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
+        for child in children:
+            opened[child.state + str(child.depth)] = child
+        # Sorting dictionary is not feasible; therefore, dictionary is transferred into list then sorted and transferred back to dictionary
+        opened_list = []
+        for node in opened.values():
+            opened_list.append(node)
+
+        opened_list.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
+        opened.clear()
+        for node in opened_list:
+            opened[node.state + str(node.depth)] = node
+
         print(
             "\nExploring children of "
             + root.state
@@ -253,7 +258,7 @@ def procress_bfs_results(closed, success, duration, ALLOCATED_TIME):
 
     output = []
     output.append(closed)
-    output.append(closed[-1])
+    output.append(list(closed.values())[-1])
     output.append(error_message)
     return output
 
@@ -290,11 +295,16 @@ def main():
         o = {}  # open stack
         c = {}  # closed stack
         o[graph.state + str(graph.depth)] = graph
-        output = depth_first_search(o, c)
-        # output = best_first_search(o, c)
         # output[0] = search path, output[1] = solution path, output[2] = error message
-        generate_search_file(output[0], puzzle_count, "dfs")
-        generate_solution_file(output[1], output[2], puzzle_count, "dfs")
+
+        output_dfs = depth_first_search(o, c)
+        generate_search_file(output_dfs[0], puzzle_count, "dfs")
+        generate_solution_file(output_dfs[1], output_dfs[2], puzzle_count, "dfs")
+
+        output_bfs = best_first_search(o, c, graph.max_l)
+        generate_search_file(output_bfs[0], puzzle_count, "bfs")
+        generate_solution_file(output_bfs[1], output_bfs[2], puzzle_count, "bfs")
+
         puzzle_count += 1
 
 

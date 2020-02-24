@@ -3,15 +3,15 @@ def generate_search_file(closed, puzzle_count, algorithm):
         with open(str(puzzle_count) + "_dfs_search.txt", "w") as f:
             for line in closed.values():
                 f.write("0" + "\t" + "0" + "\t" + "0" + "\t" + line.state + "\n")
-    else:
+    elif algorithm == "bfs":
         with open(str(puzzle_count) + "_bfs_search.txt", "w") as f:
-            for line in closed:
+            for line in closed.values():
                 f.write(
-                    str(line.heuristic)
+                    str(line.get_heuristic())
                     + "\t"
                     + "g(n)"
                     + "\t"
-                    + str(line.heuristic)
+                    + str(line.get_heuristic())
                     + "\t"
                     + line.state
                     + "\n"
@@ -31,9 +31,7 @@ def generate_solution_file(goal_state, error, puzzle_count, algorithm):
             return False
 
         solution = []
-
         get_solution_path(goal_state, solution)
-
         for line in solution:
             f.write(line.touched + "\t" + line.state + "\n")
 
