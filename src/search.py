@@ -141,22 +141,6 @@ def is_in_opened_closed_lists(child, opened, closed):
     return is_known
 
 
-# Sort and add children to opened list by heuristic
-def add_children_to_opened_list_sort_by_heuristic(root, children, opened):
-    if len(children) == 0:
-        print("\nNode " + root.state + " does not have children to explore.\n")
-    else:
-        opened.extend(children)
-        opened.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
-        print(
-            "\nExploring children of "
-            + root.state
-            + " (depth level: "
-            + str(root.depth)
-            + ").\n"
-        )
-
-
 # Sort and add children to opened list
 def add_sorted_children_to_opened_list(root, children, opened):
     if len(children) == 0:
