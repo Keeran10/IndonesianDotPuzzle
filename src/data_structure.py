@@ -41,9 +41,13 @@ class Graph:
         self.parent = None
         self.state = values
         self.heuristic = None
+        self.fn = None
 
     # graphes that have less 1's are more likely to become the solution
     # ceiling function is the minium
+
+    def get_fn(self):
+        return (self.depth - 1) + self.get_heuristic()
 
     def get_heuristic(self):
         total_touch_number = 0

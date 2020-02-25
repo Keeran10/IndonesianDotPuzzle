@@ -16,6 +16,20 @@ def generate_search_file(closed, puzzle_count, algorithm):
                     + line.state
                     + "\n"
                 )
+    elif algorithm =="a_star":
+        with open(str(puzzle_count) + "_astar_search.txt", "w") as f:
+            for line in closed.values():
+                f.write(
+                    str(line.get_fn())
+                    + "\t"
+                    + "g(n)"
+                    + "\t"
+                    + str(line.get_fn())
+                    + "\t"
+                    + line.state
+                    + "\n"
+                )
+
 
 
 def generate_solution_file(goal_state, error, puzzle_count, algorithm):
@@ -23,6 +37,8 @@ def generate_solution_file(goal_state, error, puzzle_count, algorithm):
         filename = "_dfs_solution.txt"
     elif algorithm == "bfs":
         filename = "_bfs_solution.txt"
+    elif algorithm == "a_star":
+        filename = "_astar_solution.txt"
 
     with open(str(puzzle_count) + filename, "w") as f:
 
@@ -37,7 +53,6 @@ def generate_solution_file(goal_state, error, puzzle_count, algorithm):
 
 
 def get_solution_path(root, solution):
-
     if root.parent == None:
         solution.reverse()
         return solution
