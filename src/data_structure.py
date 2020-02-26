@@ -42,7 +42,7 @@ class Graph:
         self.state = values
         self.heuristic = None
         self.fn = None
-
+    
     # graphes that have less 1's are more likely to become the solution
     # ceiling function is the minium
 

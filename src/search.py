@@ -11,7 +11,7 @@ def depth_first_search(opened, closed):
     print("\nStarting depth-first search...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 300  # how long while loop should last in seconds
+    ALLOCATED_TIME = 3000  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
@@ -47,7 +47,7 @@ def depth_first_search(opened, closed):
             continue
 
         # Generate root's children
-        children = generate_children(root, opened, closed)
+        children = generate_children(root, opened, closed, "DFS")
 
         # Add root to closed list
         closed[root.state + str(root.depth)] = root
@@ -92,7 +92,7 @@ def best_first_search(opened, closed, max_length):
         root.print()
 
         # Generate root's children
-        children = generate_children(root, opened, closed)
+        children = generate_children(root, opened, closed, "BFS")
 
         # Add root to closed list
         closed[root.state + str(root.depth)] = root
@@ -115,7 +115,7 @@ def algorithm_a_star(opened, closed, max_length):
     print("\nStarting algorithm a star...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 600  # how long while loop should last in seconds
+    ALLOCATED_TIME = 3000  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
@@ -141,7 +141,7 @@ def algorithm_a_star(opened, closed, max_length):
         root.print()
 
         # Generate root's children
-        children = generate_children(root, opened, closed)
+        children = generate_children(root, opened, closed, "a-star")
 
         # Add root to closed list
         closed[root.state + str(root.depth)] = root
@@ -163,15 +163,15 @@ def algorithm_a_star(opened, closed, max_length):
 # Returns children filtered by known states in opened, closed lists
 
 
-def generate_children(root, opened, closed):
+def generate_children(root, opened, closed, algorithm):
     children = []
     for position in root.dots:
         # touching same position twice is redundant as it gives the same state
         if position == root.touched:
             continue
-        child = copy.deepcopy(root)
+        child = Graph(root.n, root.max_d, root.max_l, root.state)
         child.touch(position)
-        if not is_in_opened_closed_lists(child, opened, closed):
+        if not is_in_opened_closed_lists(child, opened, closed, algorithm):
             child.depth = root.depth + 1
             child.parent = root
             children.append(child)
@@ -179,12 +179,19 @@ def generate_children(root, opened, closed):
 
 
 # Returns true if the state of the current node is found in open or closed lists
-def is_in_opened_closed_lists(child, opened, closed):
+def is_in_opened_closed_lists(child, opened, closed, algorithm):
     is_known = False
-    if opened.get(child.state + str(child.depth)) != None:
-        is_known = True
-    if closed.get(child.state + str(child.depth)) != None:
-        is_known = True
+
+    if algorithm == "DFS":
+        if opened.get(child.state + str(child.depth)) != None:
+            is_known = True
+        if closed.get(child.state + str(child.depth)) != None:
+            is_known = True
+    else:
+        if opened.get(child.state) != None:
+            is_known = True
+        if closed.get(child.state) != None:
+            is_known = True
     if is_known:
         print("\nChild " + child.state + " is a known state. Will not be traversed.\n")
     return is_known
@@ -241,7 +248,10 @@ def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
         print("\nNode " + root.state + " does not have children to explore.\n")
     else:
         for child in children:
-            opened[child.state + str(child.depth)] = child
+            if algorithm == "DFS":
+                opened[child.state + str(child.depth)] = child
+            else:
+                opened[child.state] = child
         # Sorting dictionary is not feasible; therefore, dictionary is transferred into list then sorted and transferred back to dictionary
         opened_list = []
         for node in opened.values():
@@ -254,7 +264,10 @@ def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
 
         opened.clear()
         for node in opened_list:
-            opened[node.state + str(node.depth)] = node
+            if algorithm == "DFS":
+                opened[node.state + str(node.depth)] = node
+            else:
+                opened[node.state] = node
 
         print(
             "\nExploring children of "
@@ -336,7 +349,7 @@ def main():
 
         o_bfs = {}  # open stack
         c_bfs = {}  # closed stack
-        o_bfs[graph.state + str(graph.depth)] = graph
+        o_bfs[graph.state] = graph
 
         output_bfs = best_first_search(o_bfs, c_bfs, graph.max_l)
         generate_search_file(output_bfs[0], puzzle_count, "bfs")
@@ -344,7 +357,7 @@ def main():
 
         o_a_star = {}  # open stack
         c_a_star = {}  # closed stack
-        o_a_star[graph.state + str(graph.depth)] = graph
+        o_a_star[graph.state] = graph
 
         output_a_star = algorithm_a_star(o_a_star, c_a_star, graph.max_l)
         generate_search_file(output_a_star[0], puzzle_count, "a_star")
