@@ -23,7 +23,7 @@ def generate_search_file(closed, puzzle_count, algorithm):
                 f.write(
                     str(line.get_fn())
                     + "\t"
-                    + str(line.depth)
+                    + str(line.depth - 1)
                     + "\t"
                     + str(line.get_heuristic())
                     + "\t"
