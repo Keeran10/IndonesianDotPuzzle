@@ -57,7 +57,7 @@ def depth_first_search(opened, closed):
         add_sorted_children_to_opened_list(root, children, opened)
 
     # print and extract required data for search/solution files into output list
-    output = procress_dfs_results(closed, success, duration, ALLOCATED_TIME)
+    output = process_results(closed, success, duration, ALLOCATED_TIME, "DFS")
 
     return output
 
@@ -103,10 +103,10 @@ def best_first_search(opened, closed, max_length):
 
         # Sort children by earliest occurence of white dots
         # Add them to opened list and then sort by heuristic
-        add_children_to_opened_list_then_sort(root, children, opened)
+        add_children_to_opened_list_then_sort(root, children, opened, "BFS")
 
     # print and extract required data for search/solution files into output list
-    output = procress_bfs_results(closed, success, duration, ALLOCATED_TIME)
+    output = process_results(closed, success, duration, ALLOCATED_TIME, "BFS")
 
     return output
 
@@ -151,10 +151,10 @@ def algorithm_a_star(opened, closed, max_length):
 
         # Sort children by earliest occurence of white dots
         # Add them to opened list and then sort by heuristic
-        add_children_to_opened_list_then_sort_fn(root, children, opened)
+        add_children_to_opened_list_then_sort(root, children, opened, "a_star")
 
     # print and extract required data for search/solution files into output list
-    output = procress_a_star_results(closed, success, duration, ALLOCATED_TIME)
+    output = process_results(closed, success, duration, ALLOCATED_TIME, "A star")
 
     return output
 
@@ -221,32 +221,6 @@ def sort_children_by_leading_zeros(child1, child2):
     return 0
 
 
-# Sort and add children to opened list
-def add_children_to_opened_list_then_sort(root, children, opened):
-    if len(children) == 0:
-        print("\nNode " + root.state + " does not have children to explore.\n")
-    else:
-        for child in children:
-            opened[child.state + str(child.depth)] = child
-        # Sorting dictionary is not feasible; therefore, dictionary is transferred into list then sorted and transferred back to dictionary
-        opened_list = []
-        for node in opened.values():
-            opened_list.append(node)
-
-        opened_list.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
-        opened.clear()
-        for node in opened_list:
-            opened[node.state + str(node.depth)] = node
-
-        print(
-            "\nExploring children of "
-            + root.state
-            + " (depth level: "
-            + str(root.depth)
-            + ").\n"
-        )
-
-
 # Returns +1 if child1 has white dots at less positions than child2
 def sort_children_by_heuristic(child1, child2):
     character1 = child1.get_heuristic()
@@ -261,7 +235,7 @@ def sort_children_by_heuristic(child1, child2):
     return 0
 
 
-def add_children_to_opened_list_then_sort_fn(root, children, opened):
+def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
     if len(children) == 0:
         print("\nNode " + root.state + " does not have children to explore.\n")
     else:
@@ -272,7 +246,11 @@ def add_children_to_opened_list_then_sort_fn(root, children, opened):
         for node in opened.values():
             opened_list.append(node)
 
-        opened_list.sort(key=functools.cmp_to_key(sort_children_by_fn))
+        if(algorithm == "BFS"):
+            opened_list.sort(key=functools.cmp_to_key(sort_children_by_fn))
+        elif(algorithm == "a_star"):
+            opened_list.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
+
         opened.clear()
         for node in opened_list:
             opened[node.state + str(node.depth)] = node
@@ -310,59 +288,14 @@ def print_stack(stack, stack_type):
         for x in range(len(stack) - 1, -1, -1):
             print(stack[x].state, end=" ")
 
-
-def procress_a_star_results(closed, success, duration, ALLOCATED_TIME):
+def process_results(closed, success, duration, ALLOCATED_TIME, algorithm):
     goal_message = "Goal state achieved."
     error_message = " "
 
     if duration > ALLOCATED_TIME:
-        print("\nA star ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
+        print("\n" + algorithm + " ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
     else:
-        print(f"\nA star completed in {duration:0.4f} seconds.\n")
-
-    if not success:
-        goal_message = "Goal state not found.\n"
-        error_message = "No solution found."
-
-    print(goal_message)
-
-    output = []
-    output.append(closed)
-    output.append(list(closed.values())[-1])
-    output.append(error_message)
-    return output
-
-
-def procress_bfs_results(closed, success, duration, ALLOCATED_TIME):
-    goal_message = "Goal state achieved."
-    error_message = " "
-
-    if duration > ALLOCATED_TIME:
-        print("\nBFS ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
-    else:
-        print(f"\nBFS completed in {duration:0.4f} seconds.\n")
-
-    if not success:
-        goal_message = "Goal state not found.\n"
-        error_message = "No solution found."
-
-    print(goal_message)
-
-    output = []
-    output.append(closed)
-    output.append(list(closed.values())[-1])
-    output.append(error_message)
-    return output
-
-
-def procress_dfs_results(closed, success, duration, ALLOCATED_TIME):
-    goal_message = "Goal state achieved."
-    error_message = " "
-
-    if duration > ALLOCATED_TIME:
-        print("\nDFS ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
-    else:
-        print(f"\nDFS completed in {duration:0.4f} seconds.\n")
+        print(f"\n" + algorithm + " completed in {duration:0.4f} seconds.\n")
 
     if not success:
         goal_message = "Goal state not found.\n"

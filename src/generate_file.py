@@ -22,9 +22,9 @@ def generate_search_file(closed, puzzle_count, algorithm):
                 f.write(
                     str(line.get_fn())
                     + "\t"
-                    + "g(n)"
+                    + str(line.depth)
                     + "\t"
-                    + str(line.get_fn())
+                    + str(line.get_heuristic())
                     + "\t"
                     + line.state
                     + "\n"
