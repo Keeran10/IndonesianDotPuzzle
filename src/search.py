@@ -115,7 +115,7 @@ def algorithm_a_star(opened, closed, max_length):
     print("\nStarting algorithm a star...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 3000  # how long while loop should last in seconds
+    ALLOCATED_TIME = 600  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
