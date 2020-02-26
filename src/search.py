@@ -171,7 +171,8 @@ def generate_children(root, opened, closed, algorithm):
             continue
         child = Graph(root.n, root.max_d, root.max_l, root.state)
         child.touch(position)
-        if not is_in_opened_closed_lists(child, opened, closed, algorithm):
+
+        if not is_in_opened_closed_lists(child, opened, closed, algorithm, root):
             child.depth = root.depth + 1
             child.parent = root
             children.append(child)
@@ -179,7 +180,8 @@ def generate_children(root, opened, closed, algorithm):
 
 
 # Returns true if the state of the current node is found in open or closed lists
-def is_in_opened_closed_lists(child, opened, closed, algorithm):
+def is_in_opened_closed_lists(child, opened, closed, algorithm, root):
+
     is_known = False
 
     if algorithm == "DFS":
@@ -187,9 +189,21 @@ def is_in_opened_closed_lists(child, opened, closed, algorithm):
             is_known = True
         if closed.get(child.state + str(child.depth)) != None:
             is_known = True
-    else:
+
+    elif algorithm == "BFS":
         if opened.get(child.state) != None:
             is_known = True
+        if closed.get(child.state) != None:
+            is_known = True
+    else:
+        if opened.get(child.state) != None:
+            child.depth = root.depth + 1
+            if child.get_fn() < opened.get(child.state).get_fn():
+                opened.pop(child.state)
+                is_known = False;       # the graph having the same state with the child will be replaced by child that has lower f(n)
+            else:
+                is_known = True;
+
         if closed.get(child.state) != None:
             is_known = True
     if is_known:
