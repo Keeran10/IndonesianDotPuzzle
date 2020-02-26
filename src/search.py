@@ -110,11 +110,12 @@ def best_first_search(opened, closed, max_length):
 
     return output
 
+
 def algorithm_a_star(opened, closed, max_length):
     print("\nStarting algorithm a star...\n")
     success = False
     start = time.perf_counter()
-    ALLOCATED_TIME = 3000  # how long while loop should last in seconds
+    ALLOCATED_TIME = 600  # how long while loop should last in seconds
     duration = 0
 
     while len(opened) != 0:
@@ -246,9 +247,9 @@ def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
         for node in opened.values():
             opened_list.append(node)
 
-        if(algorithm == "BFS"):
+        if algorithm == "BFS":
             opened_list.sort(key=functools.cmp_to_key(sort_children_by_fn))
-        elif(algorithm == "a_star"):
+        elif algorithm == "a_star":
             opened_list.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
 
         opened.clear()
@@ -288,14 +289,21 @@ def print_stack(stack, stack_type):
         for x in range(len(stack) - 1, -1, -1):
             print(stack[x].state, end=" ")
 
+
 def process_results(closed, success, duration, ALLOCATED_TIME, algorithm):
     goal_message = "Goal state achieved."
     error_message = " "
 
     if duration > ALLOCATED_TIME:
-        print("\n" + algorithm + " ran past allocated time of " + str(ALLOCATED_TIME) + " seconds.\n")
+        print(
+            "\n"
+            + algorithm
+            + " ran past allocated time of "
+            + str(ALLOCATED_TIME)
+            + " seconds.\n"
+        )
     else:
-        print(f"\n" + algorithm + " completed in {duration:0.4f} seconds.\n")
+        print("\n" + algorithm + f" completed in {duration:0.4f} seconds.\n")
 
     if not success:
         goal_message = "Goal state not found.\n"
@@ -340,7 +348,9 @@ def main():
 
         output_a_star = algorithm_a_star(o_a_star, c_a_star, graph.max_l)
         generate_search_file(output_a_star[0], puzzle_count, "a_star")
-        generate_solution_file(output_a_star[1], output_a_star[2], puzzle_count, "a_star")
+        generate_solution_file(
+            output_a_star[1], output_a_star[2], puzzle_count, "a_star"
+        )
 
         puzzle_count += 1
 
