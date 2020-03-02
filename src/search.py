@@ -271,6 +271,27 @@ def sort_children_by_heuristic(child1, child2):
         return -1
     return 0
 
+def sort_children_by_fn(child1, child2):
+    character1 = child1.get_fn()
+    character2 = child2.get_fn()
+    if int(character1) == int(character2):
+        # if equals, sort by leading zero
+        for x in range(len(child1.state) - 1):
+            character3 = child1.state[x]
+            character4 = child2.state[x]
+            if int(character3) == int(character4):
+                continue
+            elif int(character3) < int(character4):
+                return 1
+            else:
+                return -1
+        return 0
+    if int(character1) < int(character2):
+        return 1
+    else:
+        return -1
+    return 0
+
 
 def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
     if len(children) == 0:
@@ -308,17 +329,7 @@ def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
         )
 
 
-def sort_children_by_fn(child1, child2):
-    character1 = child1.get_fn()
-    character2 = child2.get_fn()
-    if int(character1) == int(character2):
-        # if equals, sort by leading zero
-        sort_children_by_leading_zeros(child1, child2)
-    if int(character1) < int(character2):
-        return 1
-    else:
-        return -1
-    return 0
+
 
 
 # prints stack with positions to be touched
@@ -368,25 +379,25 @@ def main():
     # graphs = createGraphs(file_path)
     puzzle_count = 0
     for graph in graphs:
-        o_dfs = {}  # open dictionary
-        c_dfs = {}  # closed dictionary
-        o_dfs[graph.state + str(graph.depth)] = graph
-
+        # o_dfs = {}  # open dictionary
+        # c_dfs = {}  # closed dictionary
+        # o_dfs[graph.state + str(graph.depth)] = graph
+        #
         # What is output? output[0] = search path, output[1] = solution path, output[2] = error message
-        output_dfs = depth_first_search(o_dfs, c_dfs)
-        generate_search_file(output_dfs[0], puzzle_count, "dfs")
-        generate_solution_file(
-            output_dfs[1], output_dfs[2], puzzle_count, "dfs")
-
-        o_bfs = {}  # open dictionary
-        c_bfs = {}  # closed dictionary
-        o_bfs[graph.state] = graph
-
-        output_bfs = best_first_search(o_bfs, c_bfs, graph.max_l)
-        generate_search_file(output_bfs[0], puzzle_count, "bfs")
-        generate_solution_file(
-            output_bfs[1], output_bfs[2], puzzle_count, "bfs")
-
+        # output_dfs = depth_first_search(o_dfs, c_dfs)
+        # generate_search_file(output_dfs[0], puzzle_count, "dfs")
+        # generate_solution_file(
+        #     output_dfs[1], output_dfs[2], puzzle_count, "dfs")
+        #
+        # o_bfs = {}  # open dictionary
+        # c_bfs = {}  # closed dictionary
+        # o_bfs[graph.state] = graph
+        #
+        # output_bfs = best_first_search(o_bfs, c_bfs, graph.max_l)
+        # generate_search_file(output_bfs[0], puzzle_count, "bfs")
+        # generate_solution_file(
+        #     output_bfs[1], output_bfs[2], puzzle_count, "bfs")
+        #
         o_a_star = {}  # open dictionary
         c_a_star = {}  # closed dictionary
         o_a_star[graph.state] = graph
