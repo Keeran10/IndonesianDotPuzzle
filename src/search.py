@@ -98,13 +98,15 @@ def best_first_search(opened, closed, max_length):
         closed[root.state] = root
 
         if len(closed) == max_length:
-            print("Max search length reached of " + str(max_length) + ". Aborting...")
+            print("Max search length reached of " +
+                  str(max_length) + ". Aborting...")
             break
 
         # Sort children by earliest occurence of white dots
         # Add them to opened list and then sort by heuristic
         add_children_to_opened_list_then_sort(root, children, opened, "BFS")
-
+        # for child in opened:
+        #     print(child)
     # print and extract required data for search/solution files into output list
     output = process_results(closed, success, duration, ALLOCATED_TIME, "BFS")
 
@@ -147,7 +149,8 @@ def algorithm_a_star(opened, closed, max_length):
         closed[root.state] = root
 
         if len(closed) == max_length:
-            print("Max search length reached of " + str(max_length) + ". Aborting...")
+            print("Max search length reached of " +
+                  str(max_length) + ". Aborting...")
             break
 
         # Sort children by earliest occurence of white dots
@@ -155,7 +158,8 @@ def algorithm_a_star(opened, closed, max_length):
         add_children_to_opened_list_then_sort(root, children, opened, "a_star")
 
     # print and extract required data for search/solution files into output list
-    output = process_results(closed, success, duration, ALLOCATED_TIME, "A star")
+    output = process_results(closed, success, duration,
+                             ALLOCATED_TIME, "A star")
 
     return output
 
@@ -200,14 +204,16 @@ def is_in_opened_closed_lists(child, opened, closed, algorithm, root):
             child.depth = root.depth + 1
             if child.get_fn() < opened.get(child.state).get_fn():
                 opened.pop(child.state)
-                is_known = False      # the graph having the same state with the child will be replaced by child that has lower f(n)
+                # the graph having the same state with the child will be replaced by child that has lower f(n)
+                is_known = False
             else:
                 is_known = True
 
         if closed.get(child.state) != None:
             is_known = True
     if is_known:
-        print("\nChild " + child.state + " is a known state. Will not be traversed.\n")
+        print("\nChild " + child.state +
+              " is a known state. Will not be traversed.\n")
     return is_known
 
 
@@ -249,7 +255,16 @@ def sort_children_by_heuristic(child1, child2):
     character2 = child2.get_heuristic()
     if int(character1) == int(character2):
         # if equals, sort by leading zero
-        sort_children_by_leading_zeros(child1, child2)
+        for x in range(len(child1.state) - 1):
+            character3 = child1.state[x]
+            character4 = child2.state[x]
+            if int(character3) == int(character4):
+                continue
+            elif int(character3) < int(character4):
+                return 1
+            else:
+                return -1
+        return 0
     if int(character1) < int(character2):
         return 1
     else:
@@ -274,7 +289,8 @@ def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
         if algorithm == "a_star":
             opened_list.sort(key=functools.cmp_to_key(sort_children_by_fn))
         elif algorithm == "BFS":
-            opened_list.sort(key=functools.cmp_to_key(sort_children_by_heuristic))
+            opened_list.sort(key=functools.cmp_to_key(
+                sort_children_by_heuristic))
 
         opened.clear()
         for node in opened_list:
@@ -359,7 +375,8 @@ def main():
         # What is output? output[0] = search path, output[1] = solution path, output[2] = error message
         output_dfs = depth_first_search(o_dfs, c_dfs)
         generate_search_file(output_dfs[0], puzzle_count, "dfs")
-        generate_solution_file(output_dfs[1], output_dfs[2], puzzle_count, "dfs")
+        generate_solution_file(
+            output_dfs[1], output_dfs[2], puzzle_count, "dfs")
 
         o_bfs = {}  # open dictionary
         c_bfs = {}  # closed dictionary
@@ -367,7 +384,8 @@ def main():
 
         output_bfs = best_first_search(o_bfs, c_bfs, graph.max_l)
         generate_search_file(output_bfs[0], puzzle_count, "bfs")
-        generate_solution_file(output_bfs[1], output_bfs[2], puzzle_count, "bfs")
+        generate_solution_file(
+            output_bfs[1], output_bfs[2], puzzle_count, "bfs")
 
         o_a_star = {}  # open dictionary
         c_a_star = {}  # closed dictionary

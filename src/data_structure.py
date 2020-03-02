@@ -42,7 +42,7 @@ class Graph:
         self.state = values
         self.heuristic = None
         self.fn = None
-    
+
     # graphes that have less 1's are more likely to become the solution
     # ceiling function is the minium
 
@@ -51,7 +51,7 @@ class Graph:
 
     def get_heuristic(self):
         total_touch_number = 0
-        for x in range(len(self.state) - 1):
+        for x in range(len(self.state)):
             total_touch_number = total_touch_number + int(self.state[x])
         self.heuristic = math.ceil(total_touch_number/5)
         return self.heuristic
