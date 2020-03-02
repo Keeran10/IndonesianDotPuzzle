@@ -271,6 +271,27 @@ def sort_children_by_heuristic(child1, child2):
         return -1
     return 0
 
+def sort_children_by_fn(child1, child2):
+    character1 = child1.get_fn()
+    character2 = child2.get_fn()
+    if int(character1) == int(character2):
+        # if equals, sort by leading zero
+        for x in range(len(child1.state) - 1):
+            character3 = child1.state[x]
+            character4 = child2.state[x]
+            if int(character3) == int(character4):
+                continue
+            elif int(character3) < int(character4):
+                return 1
+            else:
+                return -1
+        return 0
+    if int(character1) < int(character2):
+        return 1
+    else:
+        return -1
+    return 0
+
 
 def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
     if len(children) == 0:
@@ -308,17 +329,7 @@ def add_children_to_opened_list_then_sort(root, children, opened, algorithm):
         )
 
 
-def sort_children_by_fn(child1, child2):
-    character1 = child1.get_fn()
-    character2 = child2.get_fn()
-    if int(character1) == int(character2):
-        # if equals, sort by leading zero
-        sort_children_by_leading_zeros(child1, child2)
-    if int(character1) < int(character2):
-        return 1
-    else:
-        return -1
-    return 0
+
 
 
 # prints stack with positions to be touched
