@@ -379,25 +379,25 @@ def main():
     # graphs = createGraphs(file_path)
     puzzle_count = 0
     for graph in graphs:
-        # o_dfs = {}  # open dictionary
-        # c_dfs = {}  # closed dictionary
-        # o_dfs[graph.state + str(graph.depth)] = graph
-        #
+        o_dfs = {}  # open dictionary
+        c_dfs = {}  # closed dictionary
+        o_dfs[graph.state + str(graph.depth)] = graph
+
         # What is output? output[0] = search path, output[1] = solution path, output[2] = error message
-        # output_dfs = depth_first_search(o_dfs, c_dfs)
-        # generate_search_file(output_dfs[0], puzzle_count, "dfs")
-        # generate_solution_file(
-        #     output_dfs[1], output_dfs[2], puzzle_count, "dfs")
-        #
-        # o_bfs = {}  # open dictionary
-        # c_bfs = {}  # closed dictionary
-        # o_bfs[graph.state] = graph
-        #
-        # output_bfs = best_first_search(o_bfs, c_bfs, graph.max_l)
-        # generate_search_file(output_bfs[0], puzzle_count, "bfs")
-        # generate_solution_file(
-        #     output_bfs[1], output_bfs[2], puzzle_count, "bfs")
-        #
+        output_dfs = depth_first_search(o_dfs, c_dfs)
+        generate_search_file(output_dfs[0], puzzle_count, "dfs")
+        generate_solution_file(
+            output_dfs[1], output_dfs[2], puzzle_count, "dfs")
+
+        o_bfs = {}  # open dictionary
+        c_bfs = {}  # closed dictionary
+        o_bfs[graph.state] = graph
+
+        output_bfs = best_first_search(o_bfs, c_bfs, graph.max_l)
+        generate_search_file(output_bfs[0], puzzle_count, "bfs")
+        generate_solution_file(
+            output_bfs[1], output_bfs[2], puzzle_count, "bfs")
+
         o_a_star = {}  # open dictionary
         c_a_star = {}  # closed dictionary
         o_a_star[graph.state] = graph
